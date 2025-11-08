@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "78357809458",
+    "project_id": "betoftheday-2022",
+    "storage_bucket": "betoftheday-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78357809458:android:6c0e0b9ea031051991af2b",
+        "android_client_info": {
+          "package_name": "com.stsl.codeink.btd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "78357809458-19lpf9p20ba2lvo3qvsgpe8jhte2g1i0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stsl.codeink.btd",
+            "certificate_hash": "93236253d2b5a0c79bdddd37df0c5bb10c83d7ab"
+          }
+        },
+        {
+          "client_id": "78357809458-on0936ecc1dsauhdlot6v56capmu1fi5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stsl.codeink.btd",
+            "certificate_hash": "03f9446a9f3f3bcf8301e7d3b3c039cea272e60a"
+          }
+        },
+        {
+          "client_id": "78357809458-msjqf0df5dg7u8a78hmkht69j86hh73p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP9XQFfy2AFLHN88vAPPYmCFkyudOkM-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "78357809458-msjqf0df5dg7u8a78hmkht69j86hh73p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
