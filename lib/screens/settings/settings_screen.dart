@@ -1,355 +1,537 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/theme_provider.dart';
-import '../../utils/responsive.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:in_app_review/in_app_review.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../config/app_config.dart';
-import '../../widgets/banner_ad_widget.dart';
-import '../../widgets/native_ad_widget.dart';
-import '../../services/ad_service.dart';
+import '../../providers/theme_provider.dart';
+import '../../providers/predictions_provider.dart';
+import '../../utils/responsive.dart';
+import '../../services/storage_service.dart';
+import '../explore/match_list_screen.dart';
+import '../highlights/highlights_screen.dart';
+import '../offers/offers_screen.dart';
+import '../onboarding/onboarding_screen.dart';
+import 'subscription_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  String _version = '1.0.0';
+  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppInfo();
+  }
+
+  Future<void> _loadAppInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    final notifs = await StorageService().getNotificationsEnabled();
+    if (mounted) {
+      setState(() {
+        _version = '${info.version}+${info.buildNumber}';
+        _notificationsEnabled = notifs;
+      });
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
     final theme = Theme.of(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    // Set status bar color
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: theme.brightness == Brightness.dark
-            ? Brightness.light
-            : Brightness.dark,
-        statusBarBrightness: theme.brightness == Brightness.dark
-            ? Brightness.dark
-            : Brightness.light,
-      ),
-    );
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Settings',
-          style: TextStyle(
-            fontSize: Responsive.fontSize(20),
-            fontWeight: FontWeight.bold,
+          'SETTINGS',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            fontSize: Responsive.fontSize(16),
           ),
         ),
-        elevation: 0,
+        centerTitle: true,
       ),
-      body: Column(
+      body: ListView(
+        padding: EdgeInsets.symmetric(
+          horizontal: Responsive.spacing(20),
+          vertical: Responsive.spacing(10),
+        ),
         children: [
-          Expanded(
-            child: ListView(
-              padding: Responsive.padding(all: 16),
-              children: [
-                // App Theme Section
-                _buildSectionHeader(context, 'Appearance'),
-                SizedBox(height: Responsive.spacing(8)),
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Responsive.radius(12)),
-                    side: BorderSide(
-                      color: theme.dividerColor,
-                      width: 1,
+          _buildCategory(theme, 'PROFILE'),
+          _buildSettingsGroup(
+            theme,
+            isDark,
+            [
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.workspace_premium_rounded,
+                color: theme.colorScheme.primary,
+                title: 'VIP Subscription',
+                subtitle: 'Manage unlock access & plans',
+                trailing: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const SubscriptionScreen()),
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text('UPGRADE',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.primary)),
+                ),
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.confirmation_num_rounded,
+                color: Colors.teal,
+                title: 'Offers & Promo Codes',
+                subtitle: 'Redeem pass or claim free codes',
+                trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OffersScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.spacing(30)),
+          _buildCategory(theme, 'PREFERENCES'),
+          _buildSettingsGroup(
+            theme,
+            isDark,
+            [
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.palette_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Appearance',
+                subtitle: 'Theme & Styling',
+                trailing: _buildThemeToggle(context),
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.color_lens_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Accent Color',
+                subtitle: 'Customize app primary color',
+                trailing: _buildAccentColorPicker(context),
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.notifications_active_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Notifications',
+                subtitle: 'Match updates & tips',
+                trailing: Switch.adaptive(
+                  value: _notificationsEnabled,
+                  activeColor: theme.colorScheme.primary,
+                  onChanged: (val) async {
+                    setState(() => _notificationsEnabled = val);
+                    await StorageService().setNotificationsEnabled(val);
+                  },
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.spacing(30)),
+          _buildCategory(theme, 'ACTIVITY'),
+          _buildSettingsGroup(
+            theme,
+            isDark,
+            [
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.bookmark_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Bookmarked Matches',
+                subtitle: 'Your saved match alerts',
+                onTap: () async {
+                  final provider =
+                      Provider.of<PredictionsProvider>(context, listen: false);
+                  final bookmarkedIds =
+                      await StorageService().getBookmarkedMatchIds();
+                  final filtered = provider.matches
+                      .where((m) => bookmarkedIds.contains(m.id))
+                      .toList();
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MatchListScreen(
+                          title: 'Bookmarked Matches',
+                          matches: filtered,
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.play_circle_fill_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Top Highlights',
+                subtitle: 'Watch recent match recaps',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HighlightsScreen(
+                        searchQuery: 'Football Match Highlights today',
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Icon(
-                          themeProvider.themeMode == ThemeMode.dark
-                              ? Icons.dark_mode
-                              : themeProvider.themeMode == ThemeMode.light
-                                  ? Icons.light_mode
-                                  : Icons.brightness_auto,
-                          color: Color(AppConfig.primary600),
-                        ),
-                        title: Text(
-                          'Theme',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(16),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Text(
-                          _getThemeModeText(themeProvider.themeMode),
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(14),
-                            color: Color(AppConfig.neutral500),
-                          ),
-                        ),
-                        trailing: Switch(
-                          value: themeProvider.themeMode == ThemeMode.dark,
-                          onChanged: (value) {
-                            themeProvider.setThemeMode(
-                              value ? ThemeMode.dark : ThemeMode.light,
-                            );
-                          },
-                          activeColor: Color(AppConfig.primary600),
-                        ),
-                      ),
-                      Divider(height: 1),
-                      ListTile(
-                        leading: Icon(
-                          Icons.brightness_auto,
-                          color: Color(AppConfig.primary600),
-                        ),
-                        title: Text(
-                          'Use System Theme',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(16),
-                          ),
-                        ),
-                        trailing: Switch(
-                          value: themeProvider.themeMode == ThemeMode.system,
-                          onChanged: (value) {
-                            themeProvider.setThemeMode(
-                              value ? ThemeMode.system : ThemeMode.light,
-                            );
-                          },
-                          activeColor: Color(AppConfig.primary600),
-                        ),
-                      ),
-                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.spacing(30)),
+          _buildCategory(theme, 'APP SETTINGS'),
+          _buildSettingsGroup(
+            theme,
+            isDark,
+            [
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.share_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Share App',
+                onTap: () => SharePlus.instance.share(
+                  ShareParams(
+                    text:
+                        'Check out Bet Of The Day for expert football predictions!',
                   ),
                 ),
-                SizedBox(height: Responsive.spacing(24)),
-
-                // Account Section
-                _buildSectionHeader(context, 'Account'),
-                SizedBox(height: Responsive.spacing(8)),
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Responsive.radius(12)),
-                    side: BorderSide(
-                      color: theme.dividerColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      if (authProvider.isAuthenticated && authProvider.user != null) ...[
-                        ListTile(
-                          leading: CircleAvatar(
-                            radius: Responsive.radius(20),
-                            backgroundColor: Color(AppConfig.primary100),
-                            child: Text(
-                              authProvider.user!.username.isNotEmpty
-                                  ? authProvider.user!.username[0].toUpperCase()
-                                  : 'U',
-                              style: TextStyle(
-                                color: Color(AppConfig.primary600),
-                                fontSize: Responsive.fontSize(18),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            authProvider.user!.username,
-                            style: TextStyle(
-                              fontSize: Responsive.fontSize(16),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          subtitle: Text(
-                            authProvider.user!.email,
-                            style: TextStyle(
-                              fontSize: Responsive.fontSize(14),
-                              color: Color(AppConfig.neutral500),
-                            ),
-                          ),
-                        ),
-                        Divider(height: 1),
-                        if (authProvider.isVip)
-                          ListTile(
-                            leading: Icon(
-                              Icons.star,
-                              color: Color(AppConfig.primary600),
-                            ),
-                            title: Text(
-                              'VIP Member',
-                              style: TextStyle(
-                                fontSize: Responsive.fontSize(16),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            subtitle: Text(
-                              'Active subscription',
-                              style: TextStyle(
-                                fontSize: Responsive.fontSize(14),
-                                color: Color(AppConfig.neutral500),
-                              ),
-                            ),
-                          ),
-                        if (authProvider.isVip) Divider(height: 1),
-                      ],
-                      ListTile(
-                        leading: Icon(
-                          authProvider.isAuthenticated
-                              ? Icons.logout
-                              : Icons.login,
-                          color: authProvider.isAuthenticated
-                              ? Colors.red
-                              : Color(AppConfig.primary600),
-                        ),
-                        title: Text(
-                          authProvider.isAuthenticated ? 'Sign Out' : 'Sign In',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(16),
-                            fontWeight: FontWeight.w500,
-                            color: authProvider.isAuthenticated
-                                ? Colors.red
-                                : null,
-                          ),
-                        ),
-                        onTap: () async {
-                          if (authProvider.isAuthenticated) {
-                            // Show interstitial ad before sign out
-                            await AdService.instance.showInterstitialAd(
-                              onAdClosed: () async {
-                                await authProvider.signout();
-                                if (context.mounted) {
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                            );
-                          } else {
-                            // Navigate to sign in
-                            Navigator.of(context).pushNamed('/auth');
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.star_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Rate App',
+                onTap: () async {
+                  final InAppReview inAppReview = InAppReview.instance;
+                  await inAppReview.requestReview();
+                },
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.cloud_upload_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Backup Data',
+                onTap: () => _confirmAction(
+                    context, 'Backup', 'Do you want to backup your favorites?'),
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.delete_forever_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Clear Data',
+                onTap: () => _confirmAction(context, 'Clear All Data',
+                    'This will reset all settings and cached matches.',
+                    isDestructive: true),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.spacing(30)),
+          _buildCategory(theme, 'ABOUT'),
+          _buildSettingsGroup(
+            theme,
+            isDark,
+            [
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.info_outline_rounded,
+                color: theme.colorScheme.primary,
+                title: 'App Version',
+                trailing: Text(
+                  _version,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(fontWeight: FontWeight.w900),
                 ),
-                SizedBox(height: Responsive.spacing(24)),
-
-                // About Section
-                _buildSectionHeader(context, 'About'),
-                SizedBox(height: Responsive.spacing(8)),
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Responsive.radius(12)),
-                    side: BorderSide(
-                      color: theme.dividerColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Icon(
-                          Icons.info_outline,
-                          color: Color(AppConfig.primary600),
-                        ),
-                        title: Text(
-                          'App Version',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(16),
-                          ),
-                        ),
-                        subtitle: Text(
-                          '1.0.0',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(14),
-                            color: Color(AppConfig.neutral500),
-                          ),
-                        ),
-                      ),
-                      Divider(height: 1),
-                      ListTile(
-                        leading: Icon(
-                          Icons.description_outlined,
-                          color: Color(AppConfig.primary600),
-                        ),
-                        title: Text(
-                          'Terms of Service',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(16),
-                          ),
-                        ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: Color(AppConfig.neutral400),
-                        ),
-                        onTap: () {
-                          // TODO: Navigate to terms
-                        },
-                      ),
-                      Divider(height: 1),
-                      ListTile(
-                        leading: Icon(
-                          Icons.privacy_tip_outlined,
-                          color: Color(AppConfig.primary600),
-                        ),
-                        title: Text(
-                          'Privacy Policy',
-                          style: TextStyle(
-                            fontSize: Responsive.fontSize(16),
-                          ),
-                        ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: Color(AppConfig.neutral400),
-                        ),
-                        onTap: () {
-                          // TODO: Navigate to privacy policy
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: Responsive.spacing(24)),
-
-                // Native Ad
-                NativeAdWidget(
-                  height: Responsive.height(300),
-                  margin: Responsive.padding(vertical: 8),
-                ),
-                SizedBox(height: Responsive.spacing(16)),
-              ],
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.explore_rounded,
+                color: theme.colorScheme.primary,
+                title: 'App Tour & Walkthrough',
+                subtitle: 'Revisit feature overview & tips',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const OnboardingScreen()),
+                  );
+                },
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.gavel_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Terms of Service',
+                onTap: () => _launchUrl(AppConfig.termsOfServiceUrl),
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.privacy_tip_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Privacy Policy',
+                onTap: () => _launchUrl(AppConfig.privacyPolicyUrl),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.spacing(40)),
+          Center(
+            child: Text(
+              '© 2026 BET OF THE DAY\nPREMIUM FOOTBALL ANALYSIS',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                letterSpacing: 1.5,
+              ),
             ),
           ),
-          // Banner Ad at bottom
-          AdaptiveBannerAdWidget(
-            margin: Responsive.padding(vertical: 8),
-          ),
+          SizedBox(height: Responsive.spacing(40)),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: Responsive.fontSize(18),
-        fontWeight: FontWeight.bold,
-        color: Color(AppConfig.neutral700),
+  Widget _buildCategory(ThemeData theme, String title) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4, bottom: Responsive.spacing(12)),
+      child: Text(
+        title,
+        style: theme.textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.5,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+        ),
       ),
     );
   }
 
-  String _getThemeModeText(ThemeMode mode) {
-    switch (mode) {
-      case ThemeMode.light:
-        return 'Light';
-      case ThemeMode.dark:
-        return 'Dark';
-      case ThemeMode.system:
-        return 'System Default';
-    }
+  Widget _buildSettingsGroup(
+      ThemeData theme, bool isDark, List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest
+            .withValues(alpha: isDark ? 0.35 : 0.08),
+        borderRadius: BorderRadius.circular(Responsive.radius(20)),
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildSettingTile(
+    ThemeData theme,
+    bool isDark, {
+    required IconData icon,
+    required Color color,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding:
+          EdgeInsets.symmetric(horizontal: Responsive.spacing(20), vertical: 4),
+      leading: Container(
+        padding: EdgeInsets.all(Responsive.spacing(12)),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(Responsive.radius(14)),
+        ),
+        child: Icon(icon, color: color, size: 22),
+      ),
+      title: Text(
+        title,
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w800,
+          fontSize: Responsive.fontSize(14),
+        ),
+      ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: Responsive.fontSize(11),
+              ),
+            )
+          : null,
+      trailing: trailing ??
+          Icon(Icons.chevron_right_rounded,
+              size: 20,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.2)),
+    );
+  }
+
+  Widget _buildAccentColorPicker(BuildContext context) {
+    final colors = [
+      const Color(0xFFE4572E), // Orange
+      const Color(0xFF6366F1), // Indigo
+      const Color(0xFF10B981), // Emerald
+      const Color(0xFFEC4899), // Pink
+      const Color(0xFF3B82F6), // Blue
+    ];
+
+    return Consumer<ThemeProvider>(
+      builder: (context, provider, _) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: colors.map((c) {
+            final isSelected = provider.accentColor.value == c.value;
+            return GestureDetector(
+              onTap: () => provider.setAccentColor(c),
+              child: Container(
+                margin: const EdgeInsets.only(left: 8),
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: c,
+                  shape: BoxShape.circle,
+                  border: isSelected
+                      ? Border.all(color: Colors.white, width: 2)
+                      : null,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: c.withValues(alpha: 0.5),
+                            blurRadius: 4,
+                          )
+                        ]
+                      : null,
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeToggle(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, provider, _) {
+        return InkWell(
+          onTap: () => provider.toggleTheme(),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  provider.themeMode == ThemeMode.dark
+                      ? Icons.dark_mode_rounded
+                      : Icons.light_mode_rounded,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                SizedBox(width: 6),
+                Text(
+                  provider.themeMode == ThemeMode.dark ? 'Dark' : 'Light',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmAction(BuildContext context, String title, String msg,
+      {bool isDestructive = false}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.w900)),
+        content: Text(msg),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              if (isDestructive) {
+                // Clear storage
+                await StorageService().clearAll();
+                // Reset in-memory provider state
+                if (context.mounted) {
+                  Provider.of<PredictionsProvider>(context, listen: false)
+                      .resetData();
+                }
+              }
+              if (context.mounted) Navigator.pop(context);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Action successful')));
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDestructive
+                  ? Colors.red
+                  : Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(title),
+          ),
+        ],
+      ),
+    );
   }
 }
-

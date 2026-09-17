@@ -2,6 +2,7 @@
     <!-- Permissions for AdMob -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.vending.BILLING" />
     
     <application
         android:label="Bet of the Day"
@@ -11,7 +12,7 @@
         <!-- AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9043208558525567~7152977034" />
+            android:value="ca-app-pub-1777613531225133~5189073412" />
             
         <activity
             android:name=".MainActivity"

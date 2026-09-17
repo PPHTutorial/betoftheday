@@ -1,0 +1,45 @@
+Running Gradle task 'assembleDebug'...                          
+flutter : E:\Projects\Flutter\BetOfTheD
+ay\btd\.dart_tool\package_config.json 
+does not exist.
+At line:1 char:1
++ flutter build apk --debug 
+--target-platform android-arm64 > 
+build_log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (E:\Projects\Flu...does not   
+  exist.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+Did you run this command from the same 
+directory as your pubspec.yaml file?
+Target kernel_snapshot_program failed: 
+Error: 
+
+
+FAILURE: Build failed with an 
+exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileFlutterBuildDebug'.
+> Process 'command 'F:\Developmenttools
+\flutter\bin\flutter.bat'' finished 
+with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get 
+the stack trace.
+> Run with --info or --debug option to 
+get more log output.
+> Run with --scan to get full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 11s
+Running Gradle task 'assembleDebug'...                             11.8s
+Gradle task assembleDebug failed with 
+exit code 1

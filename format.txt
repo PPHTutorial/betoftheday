@@ -1,0 +1,372 @@
+use this js selector: document.querySelectorAll(".tab-content > div > div > div > div > table")
+to grab data from the table rows: every two tr is a match data
+
+<tr class="tr-body hoverable accordion-toggle" data-bs-toggle="collapse" data-bs-target="#demo_2425784">
+
+											<td class="first-td align-middle matches-time-column" style="word-spacing: 100vw;">
+												
+												<span id="matchTime-2425784">19.02. 17:45</span>
+												
+											</td>
+											<td class="inner-td align-middle">
+												<span>
+													<div id="container" style="white-space:nowrap;display: flex;align-items: center;">
+														<div id="image" style="display:contents;">
+															<img id="club_image-matches" src="https://r2.thesportsdb.com/images/media/team/badge/araidi1579955395.png" loading="lazy" alt="" width="100%" height="auto">
+															<!-- <img class="lazy" id="club_image-matches" src="/static/website/images/teamIcon_Placeholder.webp" data-original="https://r2.thesportsdb.com/images/media/team/badge/araidi1579955395.png" alt=""> -->
+														</div>
+														<div id="teamname" style="display:inline;white-space:nowrap;padding-left: 0.5rem;">Dinamo Zagreb</div>
+													</div>
+
+													<div id="container" style="white-space:nowrap;display: flex;align-items: center;">
+														<div id="image" style="display:contents;">
+															<img id="club_image-matches" src="https://r2.thesportsdb.com/images/media/team/badge/tp06te1534875918.png" loading="lazy" alt="" width="100%" height="auto">
+															<!-- <img class="lazy" id="club_image-matches" src="/static/website/images/teamIcon_Placeholder.webp" data-original="https://r2.thesportsdb.com/images/media/team/badge/tp06te1534875918.png" alt=""> -->
+														</div>
+														<div id="teamname" style="display:inline;white-space:nowrap;padding-left: 0.5rem;">KRC Genk</div>
+													</div>
+												</span>
+											</td>
+											<td class="inner-td align-middle text-center">
+												<span id="predResult_2425784">
+													
+														<span class="of-meta" meta-info="//4yADAAMgA2ADAAMgAxADkACOA="></span> - 
+														<span class="of-meta" meta-info="//4yADAAMgA2ADAAMgAxADkAB+A="></span>
+													
+												</span>
+											</td>
+											
+											<td class="inner-td align-middle text-center">
+												
+												<img class="predWeight-Image" src="/static/website/images/weight_0.webp" alt="">
+												
+											</td>
+											<td class="inner-td align-middle text-center">
+												<div id="matchResult-2425784" style="text-align: center;"></div>
+											</td>
+											<td class="last-td align-middle text-center">
+												<a href="/en/football/match/2425784/"><i class="fa-solid fa-up-right-from-square"></i></a>
+											</td>
+										</tr>
+
+<tr>
+    <td colspan="6" class="hiddenRow" style="border-width: 0;padding: 0 !important;">
+        <div id="demo_2425784" class="accordian-body collapse">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12 matchStats">
+                        <div class="card card-body" style="--bs-card-spacer-y: 0.45rem;">
+                            <h5 class="card-title matchStatsCardTitle">Match Info</h5>
+                            <div class="table-responsive table-responsive-matchDetailsGeneral">
+                                <table class="table table-borderless match-info-table">
+                                    <tbody>
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfo-col1">Competition:</td>
+                                            <td class="half-width-matchInfo-col2">
+                                                
+                                                    <span class="truncate-on-small-matchDetailsGeneral match-detail-link-hover">
+                                                        <a href="/en/football/league/4481/" style="color: inherit;">
+                                                            
+                                                                Europa League
+                                                            
+                                                                | 2025-2026
+                                                        </a>
+                                                    </span>
+                                                    <span class="no-truncate-on-small-matchDetailsGeneral match-detail-link-hover">
+                                                        <a href="/en/football/league/4481/" style="color: inherit;">
+                                                            
+                                                                Europa League
+                                                            
+                                                                | 2025-2026
+                                                        </a>
+                                                    </span>
+                                                    
+                                                
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfo-col1">Round:</td>
+                                            <td class="half-width-matchInfo-col2">
+                                                Round of 32
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                        
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfo-col1">Stadium:</td>
+                                            <td class="half-width-matchInfo-col2">
+                                                <span class="truncate-on-small-matchDetailsGeneral">Stadion Maksimir</span>
+                                                <span class="no-truncate-on-small-matchDetailsGeneral">Stadion Maksimir</span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfo-col1">Win Probability:</td>
+                                            <td class="half-width-matchInfo-col2">
+                                                <div class="winProb-cell-content-container">
+                                                    <div class="progress custom-progress-bar">
+                                                        <div class="progress-bar homeWin_Progressbar" role="progressbar" aria-label="Heimsieg" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">40%</div>
+                                                        <div class="progress-bar draw_Progressbar" role="progressbar" aria-label="Unentschieden" style="width: 29%;" aria-valuenow="29" aria-valuemin="0" aria-valuemax="100">29%</div>
+                                                        <div class="progress-bar awayWin_Progressbar" role="progressbar" aria-label="Auswärtssieg" style="width: 31%;" aria-valuenow="31" aria-valuemin="0" aria-valuemax="100">31%</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="half-width-matchInfo-col1">Goal Probability:</td>
+                                            <td class="half-width-matchInfo-col2">
+                                                <div class="progress custom-progress-bar goal-prob-progress-bar" style="margin-bottom: 0.1rem;margin-top: 0.2rem;">
+                                                    <div class="progress-bar-goalProb-container">
+                                                        <div class="progress-bar strength_Progressbar neutral" role="progressbar" aria-label="Attack Strength" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                                            30%
+                                                        </div>
+                                                        <div class="progress-goalProb-label">0-1</div>
+                                                    </div>
+                                                </div>
+                                                <div class="progress custom-progress-bar goal-prob-progress-bar" style="margin-bottom: 0.1rem;margin-top: 0.1rem;">
+                                                    <div class="progress-bar-goalProb-container">
+                                                        <div class="progress-bar strength_Progressbar high" role="progressbar" aria-label="Attack Strength" style="width: 48%;" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100">
+                                                            48%
+                                                        </div>
+                                                        <div class="progress-goalProb-label">2-3</div>
+                                                    </div>
+                                                </div>
+                                                <div class="progress custom-progress-bar goal-prob-progress-bar" style="margin-bottom: 0.2rem;margin-top: 0.1rem;">
+                                                    <div class="progress-bar-goalProb-container">
+                                                        <div class="progress-bar strength_Progressbar neutral" role="progressbar" aria-label="Attack Strength" style="width: 22%;" aria-valuenow="22" aria-valuemin="0" aria-valuemax="100">
+                                                            22%
+                                                        </div>
+                                                        <div class="progress-goalProb-label">&gt;3</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-6 matchStats">
+                        <div class="card card-body" style="--bs-card-spacer-y: 0.45rem;">
+                            <h5 class="card-title matchStatsCardTitle underline-home">Dinamo Zagreb</h5>
+                            <div class="table-responsive table-responsive-matchDetailsGeneral">
+                                <table class="table table-borderless match-info-table">
+                                    <tbody>
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfoTeam-col1">Form:</td>
+                                            <td class="half-width-matchInfoTeam-col2">
+                                                <span class="form-icons-container">
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfoTeam-col1">Form - Home:</td>
+                                            <td class="half-width-matchInfoTeam-col2">
+                                                <span class="form-icons-container">
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                        <tr>
+                                            <td class="half-width-matchInfoTeam-col1">Expected Goals:</td>
+                                            <td class="half-width-matchInfoTeam-col2">
+                                                <span class="of-meta" meta-info="//4H4AHgMgAwADIANgAwADIAMQA5AAngDeA="></span>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 matchStats">
+                        <div class="card card-body" style="--bs-card-spacer-y: 0.45rem;">
+                            <h5 class="card-title matchStatsCardTitle underline-away">
+                                KRC Genk
+                            </h5>
+
+                            <div class="table-responsive table-responsive-matchDetailsGeneral">
+                                <table class="table table-borderless match-info-table">
+                                    <tbody>
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfoTeam-col1">Form:</td>
+                                            <td class="half-width-matchInfoTeam-col2">
+                                                <span class="form-icons-container">
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-separator">
+                                            <td class="half-width-matchInfoTeam-col1">Form - Away:</td>
+                                            <td class="half-width-matchInfoTeam-col2">
+                                                <span class="form-icons-container">
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon lose">L</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                    
+                                                    <span class="form-icon win">W</span>
+                                                    
+                                                    
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                        <tr>
+                                            <td class="half-width-matchInfoTeam-col1">Expected Goals:</td>
+                                            <td class="half-width-matchInfoTeam-col2">
+                                                <span class="of-meta" meta-info="//4H4AHgMgAwADIANgAwADIAMQA5AAbgC+A="></span>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+
+return a json object format as follows:
+
+[
+    {
+        "matchId": "2425784",
+        "matchTime": "19.02. 17:45",
+        "homeTeam": "Dinamo Zagreb",
+        "awayTeam": "KRC Genk",
+        "homeTeamLogo": "https://r2.thesportsdb.com/images/media/team/badge/araidi1579955395.png",
+        "awayTeamLogo": "https://r2.thesportsdb.com/images/media/team/badge/tp06te1534875918.png",
+        "homeTeamOdds": "",
+        "awayTeamOdds": "",
+        "drawOdds": "",
+        "matchUrl": "https://www.predicd.com/en/football/match/2425784/",
+        "prediction": "",
+        "weght": "",
+        "liveResult": "",
+        "matchResult": {
+            "homeTeamScore": "",
+            "awayTeamScore": "",
+            "homeTeamProb": "",
+            "drawProb": "",
+            "awayTeamProb": "",            
+        },
+        "matchStats": {
+            "competition": "Europa League",
+            "round": "Round of 32",
+            "matchDate": "19.02. 17:45",
+            "matchTime": "17:45",
+            "stadium": "Stadion Maksimir",
+            "attendance": "",
+            "referee": "",
+            "homeTeam": "Dinamo Zagreb",
+            "awayTeam": "KRC Genk",
+            "homeTeamOdds": "",
+            "awayTeamOdds": "",
+            "drawOdds": "",
+            "homeTeamForm": "LWLLL",
+            "awayTeamForm": "WWLWW",
+            "homeTeamHomeForm": "WLLW",
+            "awayTeamAwayForm": "WLWWW",
+            "homeTeamExpectedGoals": "1.3",
+            "awayTeamExpectedGoals": "1.2"
+        }
+    }
+]
+
+Then to get the leagues, scrape all sites with leagues in the url with lead id like the following url: https://www.predicd.com/en/football/leagues/2425784/
+then return a json object format as follows:
+
+[
+    {
+        "leagueId": "2425784",
+        "leagueName": "Europa League",
+        "leagueUrl": "https://www.predicd.com/en/football/leagues/2425784/",
+        "leagueLogo": "https://r2.thesportsdb.com/images/media/league/badge/tp06te1534875918.png",
+        "leagueCountry": "Europe",
+        "leagueCountryFlag": "https://r2.thesportsdb.com/images/media/league/badge/tp06te1534875918.png"
+    }
+]

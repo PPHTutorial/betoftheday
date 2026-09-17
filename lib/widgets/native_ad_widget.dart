@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter/foundation.dart';
 import '../services/ad_service.dart';
 import '../utils/responsive.dart';
 
@@ -125,7 +124,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         borderRadius: BorderRadius.circular(Responsive.radius(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

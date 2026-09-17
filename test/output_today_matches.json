@@ -1,0 +1,932 @@
+[
+  {
+    "id": "2397792",
+    "matchTime": "89'",
+    "homeTeam": "Estudiantes de La Plata",
+    "awayTeam": "Club Atlético Sarmiento",
+    "prediction": "2 - 1",
+    "result": "1 - 0",
+    "isLiveMatch": true,
+    "league": "Liga Profesional de Fútb…",
+    "matchResult": {
+      "homeTeamProb": "50%",
+      "drawProb": "27%",
+      "awayTeamProb": "23%",
+      "goalProbabilities": {
+        "0-1": "26%",
+        "2-3": "46%",
+        ">3": "28%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga Profesional de Fútb…",
+      "round": "Round 6",
+      "stadium": "Estadio Jorge Luis Hirschi",
+      "homeTeamForm": "DWDWD",
+      "awayTeamForm": "LWLWL",
+      "homeTeamHomeForm": "WW",
+      "awayTeamAwayForm": "LLL",
+      "homeTeamExpectedGoals": "1.7",
+      "awayTeamExpectedGoals": "0.97"
+    }
+  },
+  {
+    "id": "2283532",
+    "matchTime": "90'",
+    "homeTeam": "CF Estrela Amadora",
+    "awayTeam": "Tondela",
+    "prediction": "1 - 2",
+    "result": "0 - 2",
+    "isLiveMatch": true,
+    "league": "Primeira Liga",
+    "matchResult": {
+      "homeTeamProb": "31%",
+      "drawProb": "27%",
+      "awayTeamProb": "42%",
+      "goalProbabilities": {
+        "0-1": "30%",
+        "2-3": "48%",
+        ">3": "22%"
+      }
+    },
+    "matchStats": {
+      "competition": "Primeira Liga",
+      "round": "Round 23",
+      "stadium": "Estádio José Gomes",
+      "homeTeamForm": "LWDLL",
+      "awayTeamForm": "DDDLL",
+      "homeTeamHomeForm": "WLDDW",
+      "awayTeamAwayForm": "DLLLW",
+      "homeTeamExpectedGoals": "1.05",
+      "awayTeamExpectedGoals": "1.35"
+    }
+  },
+  {
+    "id": "2397788",
+    "matchTime": "20.02. 23:00",
+    "homeTeam": "Boca Juniors",
+    "awayTeam": "Racing Club",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Liga Profesional de Fútb…",
+    "matchResult": {
+      "homeTeamProb": "45%",
+      "drawProb": "28%",
+      "awayTeamProb": "27%",
+      "goalProbabilities": {
+        "0-1": "30%",
+        "2-3": "48%",
+        ">3": "22%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga Profesional de Fútb…",
+      "round": "Round 6",
+      "stadium": "Estadio Alberto José Armando",
+      "homeTeamForm": "DLWLW",
+      "awayTeamForm": "WWLLL",
+      "homeTeamHomeForm": "DWW",
+      "awayTeamAwayForm": "WLL",
+      "homeTeamExpectedGoals": "1.39",
+      "awayTeamExpectedGoals": "1.01"
+    }
+  },
+  {
+    "id": "2397795",
+    "matchTime": "20.02. 23:00",
+    "homeTeam": "Instituto ACC",
+    "awayTeam": "Atlético Tucumán",
+    "prediction": "1 - 0",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Liga Profesional de Fútb…",
+    "matchResult": {
+      "homeTeamProb": "41%",
+      "drawProb": "29%",
+      "awayTeamProb": "30%",
+      "goalProbabilities": {
+        "0-1": "28%",
+        "2-3": "48%",
+        ">3": "24%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga Profesional de Fútb…",
+      "round": "Round 6",
+      "stadium": "Estadio Juan Domingo Perón",
+      "homeTeamForm": "WLDLL",
+      "awayTeamForm": "WLDDL",
+      "homeTeamHomeForm": "WDL",
+      "awayTeamAwayForm": "LL",
+      "homeTeamExpectedGoals": "1.31",
+      "awayTeamExpectedGoals": "1.19"
+    }
+  },
+  {
+    "id": "2396169",
+    "matchTime": "21.02. 01:00",
+    "homeTeam": "Tigres UANL",
+    "awayTeam": "CF Pachuca",
+    "prediction": "2 - 0",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Liga MX",
+    "matchResult": {
+      "homeTeamProb": "60%",
+      "drawProb": "22%",
+      "awayTeamProb": "18%",
+      "goalProbabilities": {
+        "0-1": "21%",
+        "2-3": "44%",
+        ">3": "35%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga MX",
+      "round": "Round 7",
+      "stadium": "Estadio Universitario UANL",
+      "homeTeamForm": "LWWDL",
+      "awayTeamForm": "WWDDW",
+      "homeTeamHomeForm": "WDLWD",
+      "awayTeamAwayForm": "DLLLD",
+      "homeTeamExpectedGoals": "2.07",
+      "awayTeamExpectedGoals": "0.91"
+    }
+  },
+  {
+    "id": "2397793",
+    "matchTime": "21.02. 01:15",
+    "homeTeam": "Gimnasia y Esgrima de Mendoza",
+    "awayTeam": "Gimnasia LP",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Liga Profesional de Fútb…",
+    "matchResult": {
+      "homeTeamProb": "41%",
+      "drawProb": "28%",
+      "awayTeamProb": "31%",
+      "goalProbabilities": {
+        "0-1": "28%",
+        "2-3": "46%",
+        ">3": "26%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga Profesional de Fútb…",
+      "round": "Round 6",
+      "stadium": "Estadio Víctor Antonio Legrotaglie",
+      "homeTeamForm": "LWLLW",
+      "awayTeamForm": "DLWLW",
+      "homeTeamHomeForm": "WL",
+      "awayTeamAwayForm": "LL",
+      "homeTeamExpectedGoals": "1.39",
+      "awayTeamExpectedGoals": "1.16"
+    }
+  },
+  {
+    "id": "2397797",
+    "matchTime": "21.02. 01:15",
+    "homeTeam": "Rosario Central",
+    "awayTeam": "Talleres de Córdoba",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Liga Profesional de Fútb…",
+    "matchResult": {
+      "homeTeamProb": "50%",
+      "drawProb": "27%",
+      "awayTeamProb": "23%",
+      "goalProbabilities": {
+        "0-1": "29%",
+        "2-3": "48%",
+        ">3": "23%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga Profesional de Fútb…",
+      "round": "Round 6",
+      "stadium": "Estadio Gigante de Arroyito",
+      "homeTeamForm": "WDDWL",
+      "awayTeamForm": "WDLLW",
+      "homeTeamHomeForm": "WDL",
+      "awayTeamAwayForm": "DL",
+      "homeTeamExpectedGoals": "1.47",
+      "awayTeamExpectedGoals": "1.0"
+    }
+  },
+  {
+    "id": "2396170",
+    "matchTime": "21.02. 03:06",
+    "homeTeam": "Club Puebla",
+    "awayTeam": "Club América",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Liga MX",
+    "matchResult": {
+      "homeTeamProb": "22%",
+      "drawProb": "26%",
+      "awayTeamProb": "52%",
+      "goalProbabilities": {
+        "0-1": "23%",
+        "2-3": "45%",
+        ">3": "32%"
+      }
+    },
+    "matchStats": {
+      "competition": "Liga MX",
+      "round": "Round 7",
+      "stadium": "Estadio Cuauhtémoc",
+      "homeTeamForm": "LDDLW",
+      "awayTeamForm": "LWWDL",
+      "homeTeamHomeForm": "LDWLW",
+      "awayTeamAwayForm": "LDDLL",
+      "homeTeamExpectedGoals": "0.96",
+      "awayTeamExpectedGoals": "1.86"
+    }
+  },
+  {
+    "id": "2355374",
+    "matchTime": "21.02. 04:00",
+    "homeTeam": "Wellington Phoenix",
+    "awayTeam": "Auckland FC",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "A-League Men",
+    "matchResult": {
+      "homeTeamProb": "26%",
+      "drawProb": "28%",
+      "awayTeamProb": "46%",
+      "goalProbabilities": {
+        "0-1": "23%",
+        "2-3": "45%",
+        ">3": "32%"
+      }
+    },
+    "matchStats": {
+      "competition": "A-League Men",
+      "round": "Round 18",
+      "stadium": "Westpac Stadium",
+      "homeTeamForm": "DLDLW",
+      "awayTeamForm": "DWLDL",
+      "homeTeamHomeForm": "LDDWL",
+      "awayTeamAwayForm": "DLLWD",
+      "homeTeamExpectedGoals": "1.09",
+      "awayTeamExpectedGoals": "1.76"
+    }
+  },
+  {
+    "id": "2412750",
+    "matchTime": "21.02. 05:00",
+    "homeTeam": "Tokyo Verdy",
+    "awayTeam": "FC Machida Zelvia",
+    "prediction": "0 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "J1 League",
+    "matchResult": {
+      "homeTeamProb": "28%",
+      "drawProb": "27%",
+      "awayTeamProb": "45%",
+      "goalProbabilities": {
+        "0-1": "33%",
+        "2-3": "46%",
+        ">3": "21%"
+      }
+    },
+    "matchStats": {
+      "competition": "J1 League",
+      "round": "Round 3",
+      "stadium": "",
+      "homeTeamForm": "WW",
+      "awayTeamForm": "DW",
+      "homeTeamHomeForm": "W",
+      "awayTeamAwayForm": "W",
+      "homeTeamExpectedGoals": "1.02",
+      "awayTeamExpectedGoals": "1.3"
+    }
+  },
+  {
+    "id": "2412751",
+    "matchTime": "21.02. 05:00",
+    "homeTeam": "Yokohama F. Marinos",
+    "awayTeam": "Urawa Red Diamonds",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "J1 League",
+    "matchResult": {
+      "homeTeamProb": "33%",
+      "drawProb": "28%",
+      "awayTeamProb": "39%",
+      "goalProbabilities": {
+        "0-1": "24%",
+        "2-3": "47%",
+        ">3": "29%"
+      }
+    },
+    "matchStats": {
+      "competition": "J1 League",
+      "round": "Round 3",
+      "stadium": "Nissan Stadium Yokohama",
+      "homeTeamForm": "LL",
+      "awayTeamForm": "DW",
+      "homeTeamHomeForm": "L",
+      "awayTeamAwayForm": "DW",
+      "homeTeamExpectedGoals": "1.26",
+      "awayTeamExpectedGoals": "1.47"
+    }
+  },
+  {
+    "id": "2412752",
+    "matchTime": "21.02. 05:30",
+    "homeTeam": "Shimizu S-Pulse",
+    "awayTeam": "Vissel Kobe",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "J1 League",
+    "matchResult": {
+      "homeTeamProb": "23%",
+      "drawProb": "26%",
+      "awayTeamProb": "51%",
+      "goalProbabilities": {
+        "0-1": "28%",
+        "2-3": "46%",
+        ">3": "26%"
+      }
+    },
+    "matchStats": {
+      "competition": "J1 League",
+      "round": "Round 3",
+      "stadium": "IAI Stadium Nihondaira",
+      "homeTeamForm": "DL",
+      "awayTeamForm": "WD",
+      "homeTeamHomeForm": "D",
+      "awayTeamAwayForm": "D",
+      "homeTeamExpectedGoals": "0.95",
+      "awayTeamExpectedGoals": "1.59"
+    }
+  },
+  {
+    "id": "2355375",
+    "matchTime": "21.02. 06:00",
+    "homeTeam": "Sydney FC",
+    "awayTeam": "Brisbane Roar FC",
+    "prediction": "2 - 0",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "A-League Men",
+    "matchResult": {
+      "homeTeamProb": "54%",
+      "drawProb": "26%",
+      "awayTeamProb": "20%",
+      "goalProbabilities": {
+        "0-1": "23%",
+        "2-3": "45%",
+        ">3": "32%"
+      }
+    },
+    "matchStats": {
+      "competition": "A-League Men",
+      "round": "Round 18",
+      "stadium": "Allianz Stadium Sydney",
+      "homeTeamForm": "DLLWL",
+      "awayTeamForm": "DLLLW",
+      "homeTeamHomeForm": "DLWLW",
+      "awayTeamAwayForm": "DLWLW",
+      "homeTeamExpectedGoals": "1.84",
+      "awayTeamExpectedGoals": "0.98"
+    }
+  },
+  {
+    "id": "2412753",
+    "matchTime": "21.02. 06:00",
+    "homeTeam": "Kawasaki Frontale",
+    "awayTeam": "FC Tokyo",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "J1 League",
+    "matchResult": {
+      "homeTeamProb": "41%",
+      "drawProb": "29%",
+      "awayTeamProb": "30%",
+      "goalProbabilities": {
+        "0-1": "28%",
+        "2-3": "48%",
+        ">3": "24%"
+      }
+    },
+    "matchStats": {
+      "competition": "J1 League",
+      "round": "Round 3",
+      "stadium": "",
+      "homeTeamForm": "DW",
+      "awayTeamForm": "DD",
+      "homeTeamHomeForm": "W",
+      "awayTeamAwayForm": "",
+      "homeTeamExpectedGoals": "1.38",
+      "awayTeamExpectedGoals": "1.12"
+    }
+  },
+  {
+    "id": "2412754",
+    "matchTime": "21.02. 06:00",
+    "homeTeam": "Nagoya Grampus",
+    "awayTeam": "V-Varen Nagasaki",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "J1 League",
+    "matchResult": {
+      "homeTeamProb": "50%",
+      "drawProb": "27%",
+      "awayTeamProb": "23%",
+      "goalProbabilities": {
+        "0-1": "28%",
+        "2-3": "48%",
+        ">3": "24%"
+      }
+    },
+    "matchStats": {
+      "competition": "J1 League",
+      "round": "Round 3",
+      "stadium": "Toyota Stadium Japan",
+      "homeTeamForm": "DW",
+      "awayTeamForm": "LL",
+      "homeTeamHomeForm": "W",
+      "awayTeamAwayForm": "L",
+      "homeTeamExpectedGoals": "1.53",
+      "awayTeamExpectedGoals": "0.99"
+    }
+  },
+  {
+    "id": "2412755",
+    "matchTime": "21.02. 07:00",
+    "homeTeam": "Kashima Antlers",
+    "awayTeam": "Kashiwa Reysol",
+    "prediction": "1 - 0",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "J1 League",
+    "matchResult": {
+      "homeTeamProb": "39%",
+      "drawProb": "29%",
+      "awayTeamProb": "32%",
+      "goalProbabilities": {
+        "0-1": "29%",
+        "2-3": "46%",
+        ">3": "25%"
+      }
+    },
+    "matchStats": {
+      "competition": "J1 League",
+      "round": "Round 3",
+      "stadium": "Kashima Soccer Stadium",
+      "homeTeamForm": "WD",
+      "awayTeamForm": "LL",
+      "homeTeamHomeForm": "W",
+      "awayTeamAwayForm": "L",
+      "homeTeamExpectedGoals": "1.28",
+      "awayTeamExpectedGoals": "1.25"
+    }
+  },
+  {
+    "id": "2355376",
+    "matchTime": "21.02. 08:35",
+    "homeTeam": "Melbourne City FC",
+    "awayTeam": "Melbourne Victory",
+    "prediction": "1 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "A-League Men",
+    "matchResult": {
+      "homeTeamProb": "38%",
+      "drawProb": "28%",
+      "awayTeamProb": "34%",
+      "goalProbabilities": {
+        "0-1": "25%",
+        "2-3": "47%",
+        ">3": "28%"
+      }
+    },
+    "matchStats": {
+      "competition": "A-League Men",
+      "round": "Round 18",
+      "stadium": "AAMI Park",
+      "homeTeamForm": "DDLWL",
+      "awayTeamForm": "DWLWL",
+      "homeTeamHomeForm": "WLWLD",
+      "awayTeamAwayForm": "WLLWD",
+      "homeTeamExpectedGoals": "1.31",
+      "awayTeamExpectedGoals": "1.38"
+    }
+  },
+  {
+    "id": "2282977",
+    "matchTime": "21.02. 10:30",
+    "homeTeam": "Eyüpspor",
+    "awayTeam": "Gençlerbirliği SK",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Süper Lig",
+    "matchResult": {
+      "homeTeamProb": "32%",
+      "drawProb": "29%",
+      "awayTeamProb": "39%",
+      "goalProbabilities": {
+        "0-1": "27%",
+        "2-3": "46%",
+        ">3": "27%"
+      }
+    },
+    "matchStats": {
+      "competition": "Süper Lig",
+      "round": "Round 23",
+      "stadium": "Recep Tayyip Erdoğan Stadyumu",
+      "homeTeamForm": "LLWDD",
+      "awayTeamForm": "DLWLD",
+      "homeTeamHomeForm": "LDLDD",
+      "awayTeamAwayForm": "LLDLL",
+      "homeTeamExpectedGoals": "1.13",
+      "awayTeamExpectedGoals": "1.49"
+    }
+  },
+  {
+    "id": "2288095",
+    "matchTime": "21.02. 11:00",
+    "homeTeam": "1. FC Nuremberg W",
+    "awayTeam": "FC Carl Zeiss Jena W",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Frauen-Bundesliga",
+    "matchResult": {
+      "homeTeamProb": "40%",
+      "drawProb": "28%",
+      "awayTeamProb": "32%",
+      "goalProbabilities": {
+        "0-1": "20%",
+        "2-3": "44%",
+        ">3": "36%"
+      }
+    },
+    "matchStats": {
+      "competition": "Frauen-Bundesliga",
+      "round": "Round 19",
+      "stadium": "Max-Morlock-Stadion",
+      "homeTeamForm": "LLLDL",
+      "awayTeamForm": "LLWLW",
+      "homeTeamHomeForm": "LLLWL",
+      "awayTeamAwayForm": "WLWLL",
+      "homeTeamExpectedGoals": "1.74",
+      "awayTeamExpectedGoals": "1.26"
+    }
+  },
+  {
+    "id": "2308789",
+    "matchTime": "21.02. 11:00",
+    "homeTeam": "Epitsentr Dunaivtsi",
+    "awayTeam": "FC LNZ Cherkasy",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "Premjer-Liha",
+    "matchResult": {
+      "homeTeamProb": "22%",
+      "drawProb": "22%",
+      "awayTeamProb": "56%",
+      "goalProbabilities": {
+        "0-1": "23%",
+        "2-3": "47%",
+        ">3": "30%"
+      }
+    },
+    "matchStats": {
+      "competition": "Premjer-Liha",
+      "round": "Round 17",
+      "stadium": "Ternopilskyi Miskyi Stadion im Romana…",
+      "homeTeamForm": "LWDDL",
+      "awayTeamForm": "WWWWW",
+      "homeTeamHomeForm": "DLLLL",
+      "awayTeamAwayForm": "WWWWL",
+      "homeTeamExpectedGoals": "0.93",
+      "awayTeamExpectedGoals": "1.85"
+    }
+  },
+  {
+    "id": "2277147",
+    "matchTime": "21.02. 12:00",
+    "homeTeam": "Karlsruher SC",
+    "awayTeam": "Holstein Kiel",
+    "prediction": "2 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "2. Bundesliga",
+    "matchResult": {
+      "homeTeamProb": "36%",
+      "drawProb": "29%",
+      "awayTeamProb": "35%",
+      "goalProbabilities": {
+        "0-1": "21%",
+        "2-3": "44%",
+        ">3": "35%"
+      }
+    },
+    "matchStats": {
+      "competition": "2. Bundesliga",
+      "round": "Round 23",
+      "stadium": "BBBank Wildpark",
+      "homeTeamForm": "LDLDW",
+      "awayTeamForm": "LLLDW",
+      "homeTeamHomeForm": "DDLLW",
+      "awayTeamAwayForm": "LDDDL",
+      "homeTeamExpectedGoals": "1.51",
+      "awayTeamExpectedGoals": "1.47"
+    }
+  },
+  {
+    "id": "2277143",
+    "matchTime": "21.02. 12:00",
+    "homeTeam": "SV Darmstadt 98",
+    "awayTeam": "Fortuna Düsseldorf",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "2. Bundesliga",
+    "matchResult": {
+      "homeTeamProb": "50%",
+      "drawProb": "27%",
+      "awayTeamProb": "23%",
+      "goalProbabilities": {
+        "0-1": "26%",
+        "2-3": "46%",
+        ">3": "28%"
+      }
+    },
+    "matchStats": {
+      "competition": "2. Bundesliga",
+      "round": "Round 23",
+      "stadium": "Merck-Stadion am Böllenfalltor",
+      "homeTeamForm": "DWDWD",
+      "awayTeamForm": "DDWLW",
+      "homeTeamHomeForm": "WWWWW",
+      "awayTeamAwayForm": "DLLLL",
+      "homeTeamExpectedGoals": "1.61",
+      "awayTeamExpectedGoals": "1.03"
+    }
+  },
+  {
+    "id": "2277144",
+    "matchTime": "21.02. 12:00",
+    "homeTeam": "SV Elversberg",
+    "awayTeam": "Eintr. Braunschweig",
+    "prediction": "2 - 0",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "2. Bundesliga",
+    "matchResult": {
+      "homeTeamProb": "55%",
+      "drawProb": "26%",
+      "awayTeamProb": "19%",
+      "goalProbabilities": {
+        "0-1": "22%",
+        "2-3": "46%",
+        ">3": "32%"
+      }
+    },
+    "matchStats": {
+      "competition": "2. Bundesliga",
+      "round": "Round 23",
+      "stadium": "Waldstadion Kaiserlinde",
+      "homeTeamForm": "WLWDL",
+      "awayTeamForm": "DLWDL",
+      "homeTeamHomeForm": "LDWDD",
+      "awayTeamAwayForm": "LDWLL",
+      "homeTeamExpectedGoals": "1.87",
+      "awayTeamExpectedGoals": "0.99"
+    }
+  },
+  {
+    "id": "2275578",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "Hull City",
+    "awayTeam": "Queens Park Rangers",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "EFL Championship",
+    "matchResult": {
+      "homeTeamProb": "41%",
+      "drawProb": "28%",
+      "awayTeamProb": "31%",
+      "goalProbabilities": {
+        "0-1": "22%",
+        "2-3": "47%",
+        ">3": "31%"
+      }
+    },
+    "matchStats": {
+      "competition": "EFL Championship",
+      "round": "Round 33",
+      "stadium": "The MKM Stadium",
+      "homeTeamForm": "LDWWW",
+      "awayTeamForm": "LDWLD",
+      "homeTeamHomeForm": "LDWLW",
+      "awayTeamAwayForm": "DDDLD",
+      "homeTeamExpectedGoals": "1.53",
+      "awayTeamExpectedGoals": "1.28"
+    }
+  },
+  {
+    "id": "2275576",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "Stoke City",
+    "awayTeam": "Leicester City",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "EFL Championship",
+    "matchResult": {
+      "homeTeamProb": "41%",
+      "drawProb": "28%",
+      "awayTeamProb": "31%",
+      "goalProbabilities": {
+        "0-1": "24%",
+        "2-3": "47%",
+        ">3": "29%"
+      }
+    },
+    "matchStats": {
+      "competition": "EFL Championship",
+      "round": "Round 33",
+      "stadium": "bet365 Stadium",
+      "homeTeamForm": "LDLDL",
+      "awayTeamForm": "LLLLD",
+      "homeTeamHomeForm": "LLDLD",
+      "awayTeamAwayForm": "LDLLL",
+      "homeTeamExpectedGoals": "1.43",
+      "awayTeamExpectedGoals": "1.3"
+    }
+  },
+  {
+    "id": "2275585",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "Swansea City",
+    "awayTeam": "Bristol City",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "EFL Championship",
+    "matchResult": {
+      "homeTeamProb": "44%",
+      "drawProb": "28%",
+      "awayTeamProb": "28%",
+      "goalProbabilities": {
+        "0-1": "26%",
+        "2-3": "47%",
+        ">3": "27%"
+      }
+    },
+    "matchStats": {
+      "competition": "EFL Championship",
+      "round": "Round 33",
+      "stadium": "Swansea.com Stadium",
+      "homeTeamForm": "LWWLW",
+      "awayTeamForm": "DWLWL",
+      "homeTeamHomeForm": "WWDWW",
+      "awayTeamAwayForm": "WLDLW",
+      "homeTeamExpectedGoals": "1.51",
+      "awayTeamExpectedGoals": "1.12"
+    }
+  },
+  {
+    "id": "2275574",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "West Bromwich Albion",
+    "awayTeam": "Coventry City",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "EFL Championship",
+    "matchResult": {
+      "homeTeamProb": "29%",
+      "drawProb": "27%",
+      "awayTeamProb": "44%",
+      "goalProbabilities": {
+        "0-1": "26%",
+        "2-3": "46%",
+        ">3": "28%"
+      }
+    },
+    "matchStats": {
+      "competition": "EFL Championship",
+      "round": "Round 33",
+      "stadium": "The Hawthorns",
+      "homeTeamForm": "DDLDL",
+      "awayTeamForm": "WDLLW",
+      "homeTeamHomeForm": "DLLWL",
+      "awayTeamAwayForm": "LLLDD",
+      "homeTeamExpectedGoals": "1.07",
+      "awayTeamExpectedGoals": "1.57"
+    }
+  },
+  {
+    "id": "2275041",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "Plymouth Argyle FC",
+    "awayTeam": "Cardiff City",
+    "prediction": "1 - 2",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "League One",
+    "matchResult": {
+      "homeTeamProb": "32%",
+      "drawProb": "29%",
+      "awayTeamProb": "39%",
+      "goalProbabilities": {
+        "0-1": "23%",
+        "2-3": "47%",
+        ">3": "30%"
+      }
+    },
+    "matchStats": {
+      "competition": "League One",
+      "round": "Round 34",
+      "stadium": "Home Park",
+      "homeTeamForm": "WWLLD",
+      "awayTeamForm": "WWWDW",
+      "homeTeamHomeForm": "LDWWD",
+      "awayTeamAwayForm": "WDWDD",
+      "homeTeamExpectedGoals": "1.35",
+      "awayTeamExpectedGoals": "1.45"
+    }
+  },
+  {
+    "id": "2275038",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "Rotherham United",
+    "awayTeam": "Doncaster Rovers",
+    "prediction": "1 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "League One",
+    "matchResult": {
+      "homeTeamProb": "36%",
+      "drawProb": "28%",
+      "awayTeamProb": "36%",
+      "goalProbabilities": {
+        "0-1": "28%",
+        "2-3": "46%",
+        ">3": "26%"
+      }
+    },
+    "matchStats": {
+      "competition": "League One",
+      "round": "Round 34",
+      "stadium": "AESSEAL New York Stadium",
+      "homeTeamForm": "LLWWD",
+      "awayTeamForm": "WLWLW",
+      "homeTeamHomeForm": "LWDLL",
+      "awayTeamAwayForm": "LWLWL",
+      "homeTeamExpectedGoals": "1.28",
+      "awayTeamExpectedGoals": "1.29"
+    }
+  },
+  {
+    "id": "2275040",
+    "matchTime": "21.02. 12:30",
+    "homeTeam": "Wycombe",
+    "awayTeam": "Stevenage FC",
+    "prediction": "2 - 1",
+    "result": null,
+    "isLiveMatch": false,
+    "league": "League One",
+    "matchResult": {
+      "homeTeamProb": "47%",
+      "drawProb": "29%",
+      "awayTeamProb": "24%",
+      "goalProbabilities": {
+        "0-1": "32%",
+        "2-3": "46%",
+        ">3": "22%"
+      }
+    },
+    "matchStats": {
+      "competition": "League One",
+      "round": "Round 34",
+      "stadium": "Adams Park",
+      "homeTeamForm": "DLWDW",
+      "awayTeamForm": "WWLLW",
+      "homeTeamHomeForm": "WWLWD",
+      "awayTeamAwayForm": "LLLLL",
+      "homeTeamExpectedGoals": "1.39",
+      "awayTeamExpectedGoals": "0.96"
+    }
+  }
+]

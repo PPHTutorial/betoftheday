@@ -1,0 +1,54 @@
+﻿Analyzing btd...                                                
+
+warning - The include file 'package:flutter_lints/flutter.yaml' in 'E:\Projects\Flutter\BetOfTheDay\btd\analysis_options.yaml' can't be found when analyzing 'E:\Projects\Flutter\BetOfTheDay\btd' - analysis_options.yaml:10:10 - include_file_not_found
+  error - Target of URI doesn't exist: 'package:shared_preferences_web/shared_preferences_web.dart' - lib\generated_plugin_registrant.dart:10:8 - uri_does_not_exist
+  error - Undefined name 'SharedPreferencesPlugin' - lib\generated_plugin_registrant.dart:20:3 - undefined_identifier
+warning - Unused import: '../../providers/theme_provider.dart' - lib\screens\home\home_screen.dart:8:8 - unused_import
+warning - Unused import: '../../services/ad_service.dart' - lib\screens\home\home_screen.dart:13:8 - unused_import
+  error - Target of URI doesn't exist: '../utils/responsive.dart' - lib\theme\app_theme.dart:5:8 - uri_does_not_exist
+   info - 'textScaleFactor' is deprecated and shouldn't be used. Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre - lib\theme\app_theme.dart:40:22 - deprecated_member_use
+  error - Undefined name 'Responsive' - lib\theme\app_theme.dart:45:7 - undefined_identifier
+warning - The value of the local variable 'backgroundLight' isn't used - lib\theme\app_theme.dart:51:11 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:84:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:112:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:183:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:189:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:307:36 - deprecated_member_use
+   info - 'textScaleFactor' is deprecated and shouldn't be used. Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre - lib\theme\app_theme.dart:377:22 - deprecated_member_use
+  error - Undefined name 'Responsive' - lib\theme\app_theme.dart:382:7 - undefined_identifier
+warning - The value of the local variable 'backgroundDark' isn't used - lib\theme\app_theme.dart:388:11 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:421:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:449:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:520:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:526:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\theme\app_theme.dart:644:36 - deprecated_member_use
+  error - Target of URI doesn't exist: '../utils/responsive.dart' - lib\widgets\banner_ad_widget.dart:4:8 - uri_does_not_exist
+  error - Undefined name 'Responsive' - lib\widgets\banner_ad_widget.dart:104:5 - undefined_identifier
+  error - Undefined name 'Responsive' - lib\widgets\banner_ad_widget.dart:170:5 - undefined_identifier
+  error - Target of URI doesn't exist: '../utils/responsive.dart' - lib\widgets\gradient_card.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'Responsive' - lib\widgets\gradient_card.dart:28:5 - undefined_identifier
+  error - Undefined name 'Responsive' - lib\widgets\gradient_card.dart:38:25 - undefined_identifier
+  error - Undefined name 'Responsive' - lib\widgets\gradient_card.dart:46:51 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\gradient_card.dart:49:40 - deprecated_member_use
+  error - Undefined name 'Responsive' - lib\widgets\gradient_card.dart:57:51 - undefined_identifier
+  error - Undefined name 'Responsive' - lib\widgets\gradient_card.dart:59:31 - undefined_identifier
+  error - Target of URI doesn't exist: '../utils/responsive.dart' - lib\widgets\native_ad_widget.dart:4:8 - uri_does_not_exist
+  error - Undefined name 'Responsive' - lib\widgets\native_ad_widget.dart:111:5 - undefined_identifier
+  error - Undefined name 'Responsive' - lib\widgets\native_ad_widget.dart:117:37 - undefined_identifier
+  error - Undefined name 'Responsive' - lib\widgets\native_ad_widget.dart:124:45 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\native_ad_widget.dart:127:33 - deprecated_member_use
+  error - Undefined name 'Responsive' - lib\widgets\native_ad_widget.dart:134:45 - undefined_identifier
+
+flutter : 38 issues found. (ran in 
+6.1s)
+At line:1 char:1
++ flutter analyze 2>&1 | Out-File 
+-FilePath analyze_output.txt -Encodin 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpec 
+   ified: (38 issues found. (ran in   
+  6.1s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeC 
+   ommandError
+ 

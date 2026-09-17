@@ -19,17 +19,7 @@ class ModernBottomNavBar extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.bottomNavigationBarTheme.backgroundColor ??
-            theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: theme.brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.3)
-                : Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        color: theme.colorScheme.surface,
       ),
       child: SafeArea(
         child: Container(
@@ -39,37 +29,37 @@ class ModernBottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _NavItem(
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home,
-                label: 'HOME',
+                icon: Icons.analytics_outlined,
+                selectedIcon: Icons.analytics,
+                label: 'ANALYTICS',
                 isSelected: currentIndex == 0,
                 onTap: () => onTap(0),
               ),
               _NavItem(
-                icon: Icons.bolt_outlined,
-                selectedIcon: Icons.bolt,
-                label: 'LIVE',
+                icon: Icons.calendar_today_outlined,
+                selectedIcon: Icons.calendar_today,
+                label: 'SCHEDULE',
                 isSelected: currentIndex == 1,
                 onTap: () => onTap(1),
               ),
               _NavItem(
-                icon: Icons.calendar_today_outlined,
-                selectedIcon: Icons.calendar_today,
-                label: 'SPORT',
+                icon: Icons.sensors_outlined,
+                selectedIcon: Icons.sensors,
+                label: 'LIVE',
                 isSelected: currentIndex == 2,
                 onTap: () => onTap(2),
               ),
               _NavItem(
-                icon: Icons.bar_chart_outlined,
-                selectedIcon: Icons.bar_chart,
-                label: 'MY BETS',
+                icon: Icons.explore_outlined,
+                selectedIcon: Icons.explore,
+                label: 'EXPLORE',
                 isSelected: currentIndex == 3,
                 onTap: () => onTap(3),
               ),
               _NavItem(
-                icon: Icons.person_outline,
-                selectedIcon: Icons.person,
-                label: 'PROFILE',
+                icon: Icons.settings_outlined,
+                selectedIcon: Icons.settings,
+                label: 'SETTINGS',
                 isSelected: currentIndex == 4,
                 onTap: () => onTap(4),
               ),
@@ -116,7 +106,7 @@ class _NavItem extends StatelessWidget {
               color: isSelected
                   ? theme.colorScheme.primary
                   : theme.bottomNavigationBarTheme.unselectedItemColor ??
-                      theme.colorScheme.onSurface.withOpacity(0.6),
+                      theme.colorScheme.onSurface.withValues(alpha: 0.6),
               size: Responsive.fontSize(24),
             ),
             SizedBox(height: Responsive.spacing(4)),
@@ -126,7 +116,7 @@ class _NavItem extends StatelessWidget {
                 color: isSelected
                     ? theme.colorScheme.primary
                     : theme.bottomNavigationBarTheme.unselectedItemColor ??
-                        theme.colorScheme.onSurface.withOpacity(0.6),
+                        theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 fontSize: Responsive.fontSize(10),
               ),

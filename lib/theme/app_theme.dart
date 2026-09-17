@@ -32,12 +32,11 @@ class AppTheme {
     );
   }
 
-  static ThemeData lightTheme(BuildContext context) {
+  static ThemeData lightTheme(BuildContext context, {Color? accentColor}) {
     // Safely get MediaQuery, with fallback values
     final mediaQuery = MediaQuery.maybeOf(context);
     final screenWidth = mediaQuery?.size.width ?? 390.0;
-    final textScaleFactor =
-        (mediaQuery?.textScaleFactor ?? 1.0).clamp(0.8, 1.3);
+
     final scaleFactor = (screenWidth / 390.0).clamp(0.8, 1.2);
 
     // Initialize Responsive if context is available
@@ -47,75 +46,82 @@ class AppTheme {
       // Context might not have MediaQuery yet, that's okay
     }
 
-    // Light theme colors
-    const backgroundLight = Color(0xFFFFFFFF);
-    const surfaceLight = Color(AppConfig.neutral50);
-    const textLight = Color(AppConfig.neutral900);
-    const textSecondaryLight = Color(AppConfig.neutral600);
+    final actualPrimary = accentColor ?? primary;
 
-    // Create Material 3 ColorScheme
+    // Light theme colors
+    const surfaceLight = Color(0xFFF8FAFC); // Clean crisp slate-50
+    const cardLight = Color(0xFFFFFFFF);
+    const textLight = Color(0xFF090D1A); // Deep contrast slate-950
+    const textSecondaryLight =
+        Color(0xFF475569); // Slate 600 (better contrast)
+
+    // Create Material 3 ColorScheme for Light
     final colorScheme = ColorScheme.light(
-      primary: primary,
+      primary: actualPrimary,
       onPrimary: Colors.white,
-      secondary: primary,
+      secondary: const Color(0xFF4F46E5), // Indigo 600 (better contrast)
       onSecondary: Colors.white,
-      tertiary: Color(AppConfig.primary300),
+      tertiary: const Color(0xFF059669), // Emerald 600
       onTertiary: Colors.white,
       error: error,
       onError: Colors.white,
       surface: surfaceLight,
       onSurface: textLight,
       onSurfaceVariant: textSecondaryLight,
-      background: backgroundLight,
-      onBackground: textLight,
-      surfaceContainerHighest: Color(AppConfig.neutral200),
-      primaryContainer: Color(AppConfig.primary50),
-      onPrimaryContainer: primary,
-      secondaryContainer: Color(AppConfig.primary100),
-      onSecondaryContainer: primary,
-      errorContainer: Color(AppConfig.error100),
-      onErrorContainer: Color(AppConfig.error800),
+      surfaceContainerHighest:
+          const Color(0xFFF1F5F9), // Slate 100
+      primaryContainer: actualPrimary.withValues(alpha: 0.1),
+      onPrimaryContainer: actualPrimary,
+      secondaryContainer: const Color(0xFFEEF2FF), // Indigo 50
+      onSecondaryContainer: const Color(0xFF4F46E5), // Indigo 600
+      outline: const Color(0xFFCBD5E1), // Slate 300 (better contrast)
+      outlineVariant: const Color(0xFFE2E8F0), // Slate 200
     );
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
-      cardColor: colorScheme.surface,
-      dividerColor: colorScheme.onSurface.withOpacity(0.12),
+      scaffoldBackgroundColor: colorScheme.surface,
+      cardColor: cardLight,
+      dividerColor: colorScheme.outline.withValues(alpha: 0.2),
 
       // App Bar
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        backgroundColor: surfaceLight,
+        foregroundColor: textLight,
         elevation: 0,
         centerTitle: false,
+        scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.dark,
           statusBarBrightness: Brightness.light,
         ),
         titleTextStyle: _textStyle(
-          fontSize: 18 * scaleFactor * textScaleFactor,
-          fontWeight: FontWeight.bold,
-          color: colorScheme.onSurface,
+          fontSize: 20 * scaleFactor,
+          fontWeight: FontWeight.w900, // Thicker for premium feel
+          color: textLight,
+          letterSpacing: -0.5,
         ),
-        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        iconTheme: IconThemeData(color: textLight, size: 24),
       ),
 
-      // Card
+      // Card - Clean, premium, borderless design
       cardTheme: CardThemeData(
-        color: colorScheme.surface,
-        elevation: 0,
+        color: cardLight,
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.04),
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12 * scaleFactor),
-          side: BorderSide(
-            color: colorScheme.outline.withOpacity(0.1),
-            width: 1,
-          ),
+          borderRadius:
+              BorderRadius.circular(20 * scaleFactor),
+          side: BorderSide.none, // Strip card borders per design polish
         ),
-        margin: EdgeInsets.all(8 * scaleFactor),
+        margin: EdgeInsets.symmetric(
+          horizontal: 16 * scaleFactor,
+          vertical: 8 * scaleFactor,
+        ),
       ),
 
       // Elevated Button
@@ -132,7 +138,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(8 * scaleFactor),
           ),
           textStyle: _textStyle(
-            fontSize: 16 * scaleFactor * textScaleFactor,
+            fontSize: 16 * scaleFactor,
             fontWeight: FontWeight.w600,
             color: colorScheme.onPrimary,
           ),
@@ -148,7 +154,7 @@ class AppTheme {
             vertical: 8 * scaleFactor,
           ),
           textStyle: _textStyle(
-            fontSize: 16 * scaleFactor * textScaleFactor,
+            fontSize: 16 * scaleFactor,
             fontWeight: FontWeight.w600,
             color: colorScheme.primary,
           ),
@@ -168,7 +174,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(8 * scaleFactor),
           ),
           textStyle: _textStyle(
-            fontSize: 16 * scaleFactor * textScaleFactor,
+            fontSize: 16 * scaleFactor,
             fontWeight: FontWeight.w600,
             color: colorScheme.primary,
           ),
@@ -182,13 +188,13 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8 * scaleFactor),
           borderSide: BorderSide(
-            color: colorScheme.outline.withOpacity(0.3),
+            color: colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8 * scaleFactor),
           borderSide: BorderSide(
-            color: colorScheme.outline.withOpacity(0.3),
+            color: colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -207,12 +213,12 @@ class AppTheme {
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
         labelStyle: TextStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurfaceVariant,
         ),
         hintStyle: TextStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurfaceVariant,
         ),
@@ -225,80 +231,80 @@ class AppTheme {
       // Text Theme
       textTheme: TextTheme(
         displayLarge: _textStyle(
-          fontSize: 32 * scaleFactor * textScaleFactor,
+          fontSize: 32 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         displayMedium: _textStyle(
-          fontSize: 28 * scaleFactor * textScaleFactor,
+          fontSize: 28 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         displaySmall: _textStyle(
-          fontSize: 24 * scaleFactor * textScaleFactor,
+          fontSize: 24 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         headlineLarge: _textStyle(
-          fontSize: 22 * scaleFactor * textScaleFactor,
+          fontSize: 22 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         headlineMedium: _textStyle(
-          fontSize: 20 * scaleFactor * textScaleFactor,
+          fontSize: 20 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         headlineSmall: _textStyle(
-          fontSize: 18 * scaleFactor * textScaleFactor,
+          fontSize: 18 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         titleLarge: _textStyle(
-          fontSize: 16 * scaleFactor * textScaleFactor,
+          fontSize: 16 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         titleMedium: _textStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         titleSmall: _textStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         bodyLarge: _textStyle(
-          fontSize: 16 * scaleFactor * textScaleFactor,
+          fontSize: 16 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurface,
           height: 1.5,
         ),
         bodyMedium: _textStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurface,
           height: 1.5,
         ),
         bodySmall: _textStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurfaceVariant,
           height: 1.5,
         ),
         labelLarge: _textStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurface,
         ),
         labelMedium: _textStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurfaceVariant,
         ),
         labelSmall: _textStyle(
-          fontSize: 10 * scaleFactor * textScaleFactor,
+          fontSize: 10 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurfaceVariant,
         ),
@@ -306,7 +312,7 @@ class AppTheme {
 
       // Divider
       dividerTheme: DividerThemeData(
-        color: colorScheme.outline.withOpacity(0.12),
+        color: colorScheme.outline.withValues(alpha: 0.12),
         thickness: 1,
         space: 1,
       ),
@@ -321,12 +327,12 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: colorScheme.surfaceContainerHighest,
         labelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurface,
         ),
         secondaryLabelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: Colors.white,
         ),
@@ -341,21 +347,23 @@ class AppTheme {
 
       // Bottom Navigation Bar
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: Colors.white,
         selectedItemColor: colorScheme.primary,
         unselectedItemColor: colorScheme.onSurfaceVariant,
-        selectedLabelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
-          fontWeight: FontWeight.w600,
+        selectedLabelStyle: _textStyle(
+          fontSize: 11 * scaleFactor,
+          fontWeight: FontWeight.w700,
           color: colorScheme.primary,
         ),
-        unselectedLabelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
-          fontWeight: FontWeight.normal,
+        unselectedLabelStyle: _textStyle(
+          fontSize: 11 * scaleFactor,
+          fontWeight: FontWeight.w500,
           color: colorScheme.onSurfaceVariant,
         ),
-        elevation: 0,
+        elevation: 8,
         type: BottomNavigationBarType.fixed,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
       ),
 
       // List Tile
@@ -371,90 +379,94 @@ class AppTheme {
     );
   }
 
-  static ThemeData darkTheme(BuildContext context) {
+  static ThemeData darkTheme(BuildContext context, {Color? accentColor}) {
     // Safely get MediaQuery, with fallback values
     final mediaQuery = MediaQuery.maybeOf(context);
     final screenWidth = mediaQuery?.size.width ?? 390.0;
-    final textScaleFactor =
-        (mediaQuery?.textScaleFactor ?? 1.0).clamp(0.8, 1.3);
+
     final scaleFactor = (screenWidth / 390.0).clamp(0.8, 1.2);
 
-    // Initialize Responsive if context is available
+    // Initialize Responsive
     try {
       Responsive.init(context);
     } catch (e) {
       // Context might not have MediaQuery yet, that's okay
     }
 
-    // Dark theme colors
-    const backgroundDark = Color(AppConfig.neutral900);
-    const surfaceDark = Color(AppConfig.neutral800);
-    const textDark = Color(0xFFFFFFFF);
-    const textSecondaryDark = Color(AppConfig.neutral400);
+    final actualPrimary = accentColor ?? primary;
+
+    // Dark theme colors (Pitch obsidian slate with rich contrast)
+    const surfaceDark = Color(0xFF090D16); // Deep obsidian canvas
+    const cardDark = Color(0xFF131B2E); // Deep rich card surface
+    const textDark = Color(0xFFFFFFFF); // Pure white high contrast
+    const textSecondaryDark = Color(0xFF94A3B8); // Slate 400
 
     // Create Material 3 ColorScheme
     final colorScheme = ColorScheme.dark(
-      primary: primary,
+      primary: actualPrimary,
       onPrimary: Colors.white,
-      secondary: primary,
+      secondary: const Color(0xFF818CF8), // Indigo 400
       onSecondary: Colors.white,
-      tertiary: Color(AppConfig.primary700),
+      tertiary: const Color(0xFF10B981), // Emerald 500
       onTertiary: Colors.white,
       error: error,
       onError: Colors.white,
       surface: surfaceDark,
       onSurface: textDark,
       onSurfaceVariant: textSecondaryDark,
-      background: backgroundDark,
-      onBackground: textDark,
-      surfaceContainerHighest: Color(AppConfig.neutral700),
-      primaryContainer: Color(AppConfig.primary900),
-      onPrimaryContainer: Color(AppConfig.primary200),
-      secondaryContainer: Color(AppConfig.primary800),
-      onSecondaryContainer: Color(AppConfig.primary200),
+      surfaceContainerHighest: const Color(0xFF1E293B), // Sleek deep slate
+      primaryContainer: actualPrimary.withValues(alpha: 0.15),
+      onPrimaryContainer: Colors.white,
+      secondaryContainer: const Color(0xFF1E293B),
+      onSecondaryContainer: const Color(0xFF818CF8),
       errorContainer: Color(AppConfig.error800),
       onErrorContainer: Color(AppConfig.error200),
+      outline: const Color(0xFF334155),
+      outlineVariant: const Color(0xFF1E293B),
     );
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
-      cardColor: colorScheme.surface,
-      dividerColor: colorScheme.onSurface.withOpacity(0.12),
+      scaffoldBackgroundColor: colorScheme.surface,
+      cardColor: cardDark,
+      dividerColor: colorScheme.onSurface.withValues(alpha: 0.1),
 
       // App Bar
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        backgroundColor: surfaceDark,
+        foregroundColor: textDark,
         elevation: 0,
         centerTitle: false,
+        scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
         ),
         titleTextStyle: _textStyle(
-          fontSize: 18 * scaleFactor * textScaleFactor,
-          fontWeight: FontWeight.bold,
-          color: colorScheme.onSurface,
+          fontSize: 20 * scaleFactor,
+          fontWeight: FontWeight.w700,
+          color: textDark,
+          letterSpacing: -0.5,
         ),
-        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        iconTheme: IconThemeData(color: textDark, size: 24),
       ),
 
-      // Card
+      // Card - Clean, premium, borderless design
       cardTheme: CardThemeData(
-        color: colorScheme.surface,
+        color: cardDark,
         elevation: 0,
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12 * scaleFactor),
-          side: BorderSide(
-            color: colorScheme.outline.withOpacity(0.1),
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(20 * scaleFactor),
+          side: BorderSide.none, // Strip card borders per design polish
         ),
-        margin: EdgeInsets.all(8 * scaleFactor),
+        margin: EdgeInsets.symmetric(
+          horizontal: 16 * scaleFactor,
+          vertical: 8 * scaleFactor,
+        ),
       ),
 
       // Elevated Button
@@ -471,7 +483,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(8 * scaleFactor),
           ),
           textStyle: _textStyle(
-            fontSize: 16 * scaleFactor * textScaleFactor,
+            fontSize: 16 * scaleFactor,
             fontWeight: FontWeight.w600,
             color: colorScheme.onPrimary,
           ),
@@ -487,7 +499,7 @@ class AppTheme {
             vertical: 8 * scaleFactor,
           ),
           textStyle: _textStyle(
-            fontSize: 16 * scaleFactor * textScaleFactor,
+            fontSize: 16 * scaleFactor,
             fontWeight: FontWeight.w600,
             color: colorScheme.primary,
           ),
@@ -507,7 +519,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(8 * scaleFactor),
           ),
           textStyle: _textStyle(
-            fontSize: 16 * scaleFactor * textScaleFactor,
+            fontSize: 16 * scaleFactor,
             fontWeight: FontWeight.w600,
             color: colorScheme.primary,
           ),
@@ -521,13 +533,13 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8 * scaleFactor),
           borderSide: BorderSide(
-            color: colorScheme.outline.withOpacity(0.3),
+            color: colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8 * scaleFactor),
           borderSide: BorderSide(
-            color: colorScheme.outline.withOpacity(0.3),
+            color: colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -546,12 +558,12 @@ class AppTheme {
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
         labelStyle: TextStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurfaceVariant,
         ),
         hintStyle: TextStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurfaceVariant,
         ),
@@ -564,80 +576,80 @@ class AppTheme {
       // Text Theme
       textTheme: TextTheme(
         displayLarge: _textStyle(
-          fontSize: 32 * scaleFactor * textScaleFactor,
+          fontSize: 32 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         displayMedium: _textStyle(
-          fontSize: 28 * scaleFactor * textScaleFactor,
+          fontSize: 28 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         displaySmall: _textStyle(
-          fontSize: 24 * scaleFactor * textScaleFactor,
+          fontSize: 24 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         headlineLarge: _textStyle(
-          fontSize: 22 * scaleFactor * textScaleFactor,
+          fontSize: 22 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
         ),
         headlineMedium: _textStyle(
-          fontSize: 20 * scaleFactor * textScaleFactor,
+          fontSize: 20 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         headlineSmall: _textStyle(
-          fontSize: 18 * scaleFactor * textScaleFactor,
+          fontSize: 18 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         titleLarge: _textStyle(
-          fontSize: 16 * scaleFactor * textScaleFactor,
+          fontSize: 16 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         titleMedium: _textStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         titleSmall: _textStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),
         bodyLarge: _textStyle(
-          fontSize: 16 * scaleFactor * textScaleFactor,
+          fontSize: 16 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurface,
           height: 1.5,
         ),
         bodyMedium: _textStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurface,
           height: 1.5,
         ),
         bodySmall: _textStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurfaceVariant,
           height: 1.5,
         ),
         labelLarge: _textStyle(
-          fontSize: 14 * scaleFactor * textScaleFactor,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurface,
         ),
         labelMedium: _textStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurfaceVariant,
         ),
         labelSmall: _textStyle(
-          fontSize: 10 * scaleFactor * textScaleFactor,
+          fontSize: 10 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurfaceVariant,
         ),
@@ -645,7 +657,7 @@ class AppTheme {
 
       // Divider
       dividerTheme: DividerThemeData(
-        color: colorScheme.outline.withOpacity(0.12),
+        color: colorScheme.outline.withValues(alpha: 0.12),
         thickness: 1,
         space: 1,
       ),
@@ -660,12 +672,12 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: colorScheme.surfaceContainerHighest,
         labelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: colorScheme.onSurface,
         ),
         secondaryLabelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.normal,
           color: Colors.white,
         ),
@@ -680,21 +692,23 @@ class AppTheme {
 
       // Bottom Navigation Bar
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: surfaceDark,
         selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurfaceVariant,
-        selectedLabelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
-          fontWeight: FontWeight.w600,
+        unselectedItemColor: textSecondaryDark,
+        selectedLabelStyle: _textStyle(
+          fontSize: 11 * scaleFactor,
+          fontWeight: FontWeight.w700,
           color: colorScheme.primary,
         ),
-        unselectedLabelStyle: TextStyle(
-          fontSize: 12 * scaleFactor * textScaleFactor,
-          fontWeight: FontWeight.normal,
-          color: colorScheme.onSurfaceVariant,
+        unselectedLabelStyle: _textStyle(
+          fontSize: 11 * scaleFactor,
+          fontWeight: FontWeight.w500,
+          color: textSecondaryDark,
         ),
-        elevation: 0,
+        elevation: 8,
         type: BottomNavigationBarType.fixed,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
       ),
 
       // List Tile
