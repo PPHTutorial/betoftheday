@@ -84,8 +84,7 @@ class IAPService extends ChangeNotifier {
       await _checkSubscriptionStatus();
       await loadOfferings();
     } catch (e) {
-      debugPrint('RevenueCat initialization error: $e');
-      _errorMessage = 'In-app purchases initialized in test mode.';
+      debugPrint('RevenueCat initialization notice: $e');
       _loadFallbackProducts();
     }
   }
@@ -108,6 +107,11 @@ class IAPService extends ChangeNotifier {
 
     _isSubscribed = hasEntitlement || anyActive;
     StorageService().setIsPremium(_isSubscribed);
+    notifyListeners();
+  }
+
+  void clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 
@@ -150,6 +154,16 @@ class IAPService extends ChangeNotifier {
             ),
           );
         }
+
+        // Sort: Yearly first (best value), Monthly second, Lifetime third
+        mapped.sort((a, b) {
+          if (a.isYearly && !b.isYearly) return -1;
+          if (!a.isYearly && b.isYearly) return 1;
+          if (a.isLifetime && !b.isLifetime) return 1;
+          if (!a.isLifetime && b.isLifetime) return -1;
+          return 0;
+        });
+
         _products = mapped;
         _errorMessage = null;
       } else {
@@ -167,19 +181,19 @@ class IAPService extends ChangeNotifier {
   void _loadFallbackProducts() {
     _products = [
       const AppSubscriptionProduct(
+        id: AppConfig.premiumYearlyId,
+        title: 'Annual VIP Pass',
+        price: AppConfig.yearlyPrice,
+        period: '/year',
+        isYearly: true,
+        isLifetime: false,
+      ),
+      const AppSubscriptionProduct(
         id: AppConfig.premiumMonthlyId,
         title: 'Monthly VIP Access',
         price: AppConfig.monthlyPrice,
         period: '/month',
         isYearly: false,
-        isLifetime: false,
-      ),
-      const AppSubscriptionProduct(
-        id: AppConfig.premiumYearlyId,
-        title: 'Annual VIP Access',
-        price: AppConfig.yearlyPrice,
-        period: '/year',
-        isYearly: true,
         isLifetime: false,
       ),
       const AppSubscriptionProduct(
@@ -191,6 +205,7 @@ class IAPService extends ChangeNotifier {
         isLifetime: true,
       ),
     ];
+    _errorMessage = null;
     notifyListeners();
   }
 
@@ -224,7 +239,12 @@ class IAPService extends ChangeNotifier {
       }
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'Purchase cancelled or failed: $e';
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('cancel') || errorStr.contains('user_cancelled')) {
+        _errorMessage = null;
+      } else {
+        _errorMessage = 'Purchase could not be completed. Please try again.';
+      }
       notifyListeners();
       return false;
     }
@@ -247,7 +267,7 @@ class IAPService extends ChangeNotifier {
       return _isSubscribed;
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'Restore failed: $e';
+      _errorMessage = 'Restore request failed. Please check your Google Play account.';
       notifyListeners();
       return false;
     }

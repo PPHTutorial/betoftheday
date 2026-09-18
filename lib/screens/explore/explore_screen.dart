@@ -10,7 +10,6 @@ import '../highlights/highlights_screen.dart';
 import '../history/previous_matches_screen.dart';
 import '../../services/storage_service.dart';
 import '../../widgets/match_card.dart';
-import '../../widgets/banner_ad_widget.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -60,63 +59,87 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
         centerTitle: true,
       ),
-      body: ListView(
-        padding: EdgeInsets.symmetric(
-          horizontal: Responsive.spacing(20),
-          vertical: Responsive.spacing(10),
-        ),
-        children: [
-          _buildSearchBar(theme),
-          SizedBox(height: Responsive.spacing(24)),
-          if (_searchQuery.isNotEmpty) ...[
-            Text(
-              'SEARCH RESULTS (${searchResults.length})',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
-            ),
-            SizedBox(height: Responsive.spacing(16)),
-            if (searchResults.isEmpty)
-              SizedBox(
-                height: Responsive.height(200),
-                child: const Center(child: Text('No fixtures or clubs found.')),
-              )
-            else
-              ...searchResults.map((m) => Padding(
-                    padding: EdgeInsets.only(bottom: Responsive.spacing(12)),
-                    child: MatchCard(prediction: m),
-                  )),
-            SizedBox(height: Responsive.spacing(40)), // bottom padding
-          ] else ...[
-            _SectionHeader(
-              title: 'TOP LEAGUES',
-              onSeeAll: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MatchListScreen(
-                      title: 'ALL MATCHES',
-                      matches: provider.matches,
+      body: _searchQuery.isNotEmpty
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.spacing(20),
+                    vertical: Responsive.spacing(10),
+                  ),
+                  child: _buildSearchBar(theme),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.spacing(20),
+                    vertical: Responsive.spacing(8),
+                  ),
+                  child: Text(
+                    'SEARCH RESULTS (${searchResults.length})',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: searchResults.isEmpty
+                      ? SizedBox(
+                          height: Responsive.height(200),
+                          child: const Center(
+                              child: Text('No fixtures or clubs found.')),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.only(
+                            bottom: Responsive.spacing(40),
+                          ),
+                          itemCount: searchResults.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: Responsive.spacing(12)),
+                              child: MatchCard(
+                                  prediction: searchResults[index]),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            )
+          : ListView(
+              padding: EdgeInsets.symmetric(
+                horizontal: Responsive.spacing(20),
+                vertical: Responsive.spacing(10),
+              ),
+              children: [
+                _buildSearchBar(theme),
+                SizedBox(height: Responsive.spacing(24)),
+                _SectionHeader(
+                  title: 'TOP LEAGUES',
+                  onSeeAll: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MatchListScreen(
+                          title: 'ALL MATCHES',
+                          matches: provider.matches,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const _LeagueGrid(),
+                SizedBox(height: Responsive.spacing(32)),
+                _SectionHeader(
+                  title: 'MATCH ANALYSIS SEGMENTS',
+                  onSeeAll: () {},
+                ),
+                const _SegmentList(),
+                SizedBox(height: Responsive.spacing(40)),
+              ],
             ),
-            const _LeagueGrid(),
-            SizedBox(height: Responsive.spacing(32)),
-            _SectionHeader(
-              title: 'MATCH ANALYSIS SEGMENTS',
-              onSeeAll: () {},
-            ),
-            const _SegmentList(),
-            SizedBox(height: Responsive.spacing(20)),
-            const BannerAdWidget(),
-            SizedBox(height: Responsive.spacing(40)),
-          ],
-        ],
-      ),
     );
   }
 
@@ -207,12 +230,6 @@ class _LeagueGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    // Soft border for light theme
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.05)
-        : theme.colorScheme.onSurface.withValues(alpha: 0.03);
 
     final provider = Provider.of<PredictionsProvider>(context);
     final leagues = provider.leagues.isNotEmpty
@@ -245,28 +262,19 @@ class _LeagueGrid extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [
-                      theme.colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.4),
-                      theme.colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.1)
-                    ]
-                  : [
-                      Colors.white,
-                      theme.colorScheme.primary.withValues(alpha: 0.05)
-                    ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(Responsive.radius(20)),
-            border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
+                color: theme.cardTheme.shadowColor ??
+                    theme.colorScheme.shadow.withValues(alpha: 0.08),
+                blurRadius: 12,
                 offset: const Offset(0, 4),
+              ),
+              BoxShadow(
+                color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -278,7 +286,10 @@ class _LeagueGrid extends StatelessWidget {
                       builder: (_) => MatchListScreen(
                           title: name,
                           matches: provider.matches
-                              .where((m) => m.leagueId == id)
+                              .where((m) =>
+                                  m.leagueId == id ||
+                                  m.league.toLowerCase().trim() ==
+                                      name.toLowerCase().trim())
                               .toList())));
             },
             borderRadius: BorderRadius.circular(Responsive.radius(20)),
@@ -382,11 +393,6 @@ class _SegmentList extends StatelessWidget {
             color: theme.colorScheme.surfaceContainerHighest
                 .withValues(alpha: isDark ? 0.2 : 0.03),
             borderRadius: BorderRadius.circular(Responsive.radius(16)),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : theme.colorScheme.onSurface.withValues(alpha: 0.03),
-            ),
           ),
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(
@@ -451,6 +457,7 @@ class _SegmentList extends StatelessWidget {
                     return bXg.compareTo(aXg);
                   });
                   break;
+                case 'safe':
                 case 'safe_bets':
                   filtered = allMatches.where((m) {
                     final hp = _parseProb(m.matchResult?.homeTeamProb);
@@ -458,6 +465,7 @@ class _SegmentList extends StatelessWidget {
                     return hp > 65 || ap > 65;
                   }).toList();
                   break;
+                case 'longspots':
                 case 'long_shots':
                   filtered = allMatches.where((m) {
                     final hp = _parseProb(m.matchResult?.homeTeamProb);
@@ -468,6 +476,7 @@ class _SegmentList extends StatelessWidget {
                     return maxProb > 0 && maxProb < 45; // No clear favorite
                   }).toList();
                   break;
+                case 'goals':
                 case 'most_goals':
                   filtered = allMatches.where((m) {
                     final hXg = _parseXG(m.matchStats?.homeTeamExpectedGoals);
@@ -500,12 +509,17 @@ class _SegmentList extends StatelessWidget {
                 case 'bookmarks':
                   final bookmarkedIds =
                       await StorageService().getBookmarkedMatchIds();
-                  filtered = allMatches
+                  final allCombined = [
+                    ...provider.matches,
+                    ...provider.previousMatches,
+                  ];
+                  filtered = allCombined
                       .where((m) => bookmarkedIds.contains(m.id))
                       .toList();
                   break;
               }
 
+              if (!context.mounted) return;
               Navigator.push(
                   context,
                   MaterialPageRoute(

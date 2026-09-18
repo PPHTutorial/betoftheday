@@ -6,8 +6,6 @@ import 'explore/explore_screen.dart';
 import 'settings/settings_screen.dart';
 import 'analytics/advanced_analytics_screen.dart';
 
-import '../services/ad_service.dart';
-
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -15,8 +13,7 @@ class MainNavigationScreen extends StatefulWidget {
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen>
-    with WidgetsBindingObserver {
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 2; // Default to Live Matches as requested (active menu)
 
   final List<Widget> _screens = [
@@ -26,29 +23,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     const ExploreScreen(),
     const SettingsScreen(),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    // Try showing an app open ad quickly on first load if ready
-    Future.delayed(const Duration(seconds: 2), () {
-      AdService.instance.showAppOpenAd();
-    });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      AdService.instance.showAppOpenAd();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

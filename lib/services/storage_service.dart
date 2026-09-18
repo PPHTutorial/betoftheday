@@ -2,7 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/prediction_model.dart';
 import '../models/league_model.dart';
+import '../models/notification_model.dart';
 import 'database_service.dart';
+
+// Top-level functions required by compute() — must not be closures
+String _encodeMatchList(List<MatchPrediction> matches) =>
+    MatchPrediction.encodeList(matches);
+List<MatchPrediction> _decodeMatchList(String json) =>
+    MatchPrediction.decodeList(json);
 
 class StorageService {
   static final StorageService _instance = StorageService._internal();
@@ -29,10 +36,25 @@ class StorageService {
   static const String _myBetsKey = 'my_bets_json';
   static const String _accentColorKey = 'accent_color';
   static const String _historicalDbKey = 'historical_matches_db';
+  static const String _favoriteTeamsKey = 'favorite_teams';
+  static const String _bookmarkedNotifsKey = 'bookmarked_notifs_enabled';
+  static const String _favTeamsNotifsKey = 'fav_teams_notifs_enabled';
+  static const String _notifiedEventsKey = 'notified_events_cache';
+  static const String _fcmTokenKey = 'fcm_registration_token';
+  static const String _notificationHistoryKey = 'notification_inbox_history';
+
+  // In-memory cache to prevent repeated FlutterSecureStorage platform-channel / Keystore hits
+  bool? _cachedIsPremium;
+  Set<String>? _cachedBookmarks;
+  Set<String>? _cachedUnlockedMatches;
+  Set<String>? _cachedFavoriteTeams;
+  Set<String>? _cachedNotifiedEvents;
+  List<AppNotification>? _cachedNotificationHistory;
 
   // ========== PREMIUM STATUS ==========
 
   Future<void> setIsPremium(bool isPremium) async {
+    _cachedIsPremium = isPremium;
     try {
       await _storage.write(key: _premiumKey, value: isPremium.toString());
     } catch (e) {
@@ -41,10 +63,15 @@ class StorageService {
   }
 
   Future<bool?> getIsPremium() async {
+    if (_cachedIsPremium != null) return _cachedIsPremium;
     try {
       final value = await _storage.read(key: _premiumKey);
-      if (value == null) return null;
-      return value == 'true';
+      if (value == null) {
+        _cachedIsPremium = false;
+        return false;
+      }
+      _cachedIsPremium = value == 'true';
+      return _cachedIsPremium;
     } catch (e) {
       debugPrint('Error reading premium status: $e');
       return null;
@@ -71,12 +98,18 @@ class StorageService {
   // ========== BOOKMARKS ==========
 
   Future<List<String>> getBookmarkedMatchIds() async {
+    if (_cachedBookmarks != null) return _cachedBookmarks!.toList();
     try {
       final value = await _storage.read(key: _bookmarksKey);
-      if (value == null || value.isEmpty) return [];
-      return value.split(',');
+      if (value == null || value.isEmpty) {
+        _cachedBookmarks = <String>{};
+        return [];
+      }
+      _cachedBookmarks = value.split(',').toSet();
+      return _cachedBookmarks!.toList();
     } catch (e) {
       debugPrint('Error reading bookmarks: $e');
+      _cachedBookmarks = <String>{};
       return [];
     }
   }
@@ -84,18 +117,23 @@ class StorageService {
   Future<void> toggleBookmark(String matchId) async {
     try {
       final ids = await getBookmarkedMatchIds();
-      if (ids.contains(matchId)) {
-        ids.remove(matchId);
+      final idSet = ids.toSet();
+      if (idSet.contains(matchId)) {
+        idSet.remove(matchId);
       } else {
-        ids.add(matchId);
+        idSet.add(matchId);
       }
-      await _storage.write(key: _bookmarksKey, value: ids.join(','));
+      _cachedBookmarks = idSet;
+      await _storage.write(key: _bookmarksKey, value: idSet.join(','));
     } catch (e) {
       debugPrint('Error toggling bookmark: $e');
     }
   }
 
   Future<bool> isBookmarked(String matchId) async {
+    if (_cachedBookmarks != null) {
+      return _cachedBookmarks!.contains(matchId);
+    }
     final ids = await getBookmarkedMatchIds();
     return ids.contains(matchId);
   }
@@ -122,17 +160,24 @@ class StorageService {
   // ========== FREE SLOT MANAGEMENT ==========
 
   Future<List<String>> getUnlockedMatchIds() async {
+    if (_cachedUnlockedMatches != null) return _cachedUnlockedMatches!.toList();
     try {
       final value = await _storage.read(key: _unlockedMatchesKey);
-      if (value == null || value.isEmpty) return [];
-      return value.split(',');
+      if (value == null || value.isEmpty) {
+        _cachedUnlockedMatches = <String>{};
+        return [];
+      }
+      _cachedUnlockedMatches = value.split(',').toSet();
+      return _cachedUnlockedMatches!.toList();
     } catch (e) {
       debugPrint('Error reading unlocked match IDs: $e');
+      _cachedUnlockedMatches = <String>{};
       return [];
     }
   }
 
   Future<void> saveUnlockedMatchIds(List<String> ids) async {
+    _cachedUnlockedMatches = ids.toSet();
     try {
       await _storage.write(key: _unlockedMatchesKey, value: ids.join(','));
     } catch (e) {
@@ -141,6 +186,11 @@ class StorageService {
   }
 
   Future<void> unlockMatch(String id) async {
+    if (_cachedUnlockedMatches != null) {
+      _cachedUnlockedMatches!.add(id);
+      await saveUnlockedMatchIds(_cachedUnlockedMatches!.toList());
+      return;
+    }
     final ids = await getUnlockedMatchIds();
     if (!ids.contains(id)) {
       ids.add(id);
@@ -149,9 +199,15 @@ class StorageService {
   }
 
   Future<bool> isMatchUnlocked(String id) async {
-    // If premium, everything is unlocked
+    // Fast path: cached premium check
+    if (_cachedIsPremium == true) return true;
     final isPremium = await getIsPremium();
     if (isPremium == true) return true;
+
+    // Fast path: cached unlocked matches
+    if (_cachedUnlockedMatches != null) {
+      return _cachedUnlockedMatches!.contains(id);
+    }
 
     final ids = await getUnlockedMatchIds();
     return ids.contains(id);
@@ -213,30 +269,25 @@ class StorageService {
       final existingMatches = await getCachedMatches();
       final matchMap = {for (var m in existingMatches) m.id: m};
 
-      // Retention: filter out matches older than 7 days OR stale live matches from previous days
       final now = DateTime.now();
       final cutOff = now.subtract(const Duration(days: 7));
       final startOfToday = DateTime(now.year, now.month, now.day);
 
       matchMap.removeWhere((id, m) {
-        // Remove if older than 7 days
         if (m.matchDate.isBefore(cutOff)) return true;
-
-        // Remove if it's a "Live" match from a previous day (likely a stale cache entry)
         if (m.isLiveMatch && m.matchDate.isBefore(startOfToday)) return true;
-
         return false;
       });
 
-      // Merge new matches
       for (final match in matches) {
         matchMap[match.id] = match;
       }
 
-      final mergedList = matchMap.values.toList();
-      mergedList.sort((a, b) => b.matchDate.compareTo(a.matchDate));
+      final mergedList = matchMap.values.toList()
+        ..sort((a, b) => b.matchDate.compareTo(a.matchDate));
 
-      final jsonStr = MatchPrediction.encodeList(mergedList);
+      // Encode in a background isolate so we never block the UI thread
+      final jsonStr = await compute(_encodeMatchList, mergedList);
       await _storage.write(key: _matchesKey, value: jsonStr);
       await setLastFetchTime(now);
       debugPrint('Merged and cached ${mergedList.length} matches');
@@ -249,7 +300,8 @@ class StorageService {
     try {
       final jsonStr = await _storage.read(key: _matchesKey);
       if (jsonStr == null || jsonStr.isEmpty) return [];
-      return MatchPrediction.decodeList(jsonStr);
+      // Decode in a background isolate so we never block the UI thread
+      return compute(_decodeMatchList, jsonStr);
     } catch (e) {
       debugPrint('Error reading cached matches: $e');
       return [];
@@ -376,6 +428,237 @@ class StorageService {
       debugPrint('Error reading favorite leagues: $e');
       return [];
     }
+  }
+
+  // ========== FAVORITE TEAMS ==========
+
+  Future<List<String>> getFavoriteTeams() async {
+    if (_cachedFavoriteTeams != null) return _cachedFavoriteTeams!.toList();
+    try {
+      final value = await _storage.read(key: _favoriteTeamsKey);
+      if (value == null || value.isEmpty) {
+        _cachedFavoriteTeams = <String>{};
+        return [];
+      }
+      _cachedFavoriteTeams = value.split('||').where((s) => s.trim().isNotEmpty).toSet();
+      return _cachedFavoriteTeams!.toList();
+    } catch (e) {
+      debugPrint('Error reading favorite teams: $e');
+      _cachedFavoriteTeams = <String>{};
+      return [];
+    }
+  }
+
+  Future<void> saveFavoriteTeams(List<String> teams) async {
+    try {
+      _cachedFavoriteTeams = teams.toSet();
+      await _storage.write(key: _favoriteTeamsKey, value: teams.join('||'));
+    } catch (e) {
+      debugPrint('Error saving favorite teams: $e');
+    }
+  }
+
+  Future<bool> isFavoriteTeam(String team) async {
+    if (_cachedFavoriteTeams != null) {
+      return _cachedFavoriteTeams!.contains(team);
+    }
+    final teams = await getFavoriteTeams();
+    return teams.contains(team);
+  }
+
+  Future<bool> toggleFavoriteTeam(String team) async {
+    try {
+      final teams = await getFavoriteTeams();
+      final teamSet = teams.toSet();
+      final bool nowFavorite;
+      if (teamSet.contains(team)) {
+        teamSet.remove(team);
+        nowFavorite = false;
+      } else {
+        teamSet.add(team);
+        nowFavorite = true;
+      }
+      _cachedFavoriteTeams = teamSet;
+      await _storage.write(key: _favoriteTeamsKey, value: teamSet.join('||'));
+      return nowFavorite;
+    } catch (e) {
+      debugPrint('Error toggling favorite team: $e');
+      return false;
+    }
+  }
+
+  Future<void> addFavoriteTeam(String team) async {
+    try {
+      final teams = await getFavoriteTeams();
+      final teamSet = teams.toSet()..add(team);
+      _cachedFavoriteTeams = teamSet;
+      await _storage.write(key: _favoriteTeamsKey, value: teamSet.join('||'));
+    } catch (e) {
+      debugPrint('Error adding favorite team: $e');
+    }
+  }
+
+  Future<void> removeFavoriteTeam(String team) async {
+    try {
+      final teams = await getFavoriteTeams();
+      final teamSet = teams.toSet()..remove(team);
+      _cachedFavoriteTeams = teamSet;
+      await _storage.write(key: _favoriteTeamsKey, value: teamSet.join('||'));
+    } catch (e) {
+      debugPrint('Error removing favorite team: $e');
+    }
+  }
+
+  // ========== NOTIFICATION PREFERENCES ==========
+
+  Future<bool> getBookmarkedNotifsEnabled() async {
+    try {
+      final value = await _storage.read(key: _bookmarkedNotifsKey);
+      if (value == null) return true; // Enabled by default
+      return value.toLowerCase() == 'true';
+    } catch (e) {
+      debugPrint('Error reading bookmarked notifs preference: $e');
+      return true;
+    }
+  }
+
+  Future<void> setBookmarkedNotifsEnabled(bool enabled) async {
+    try {
+      await _storage.write(key: _bookmarkedNotifsKey, value: enabled.toString());
+    } catch (e) {
+      debugPrint('Error saving bookmarked notifs preference: $e');
+    }
+  }
+
+  Future<bool> getFavoriteTeamsNotifsEnabled() async {
+    try {
+      final value = await _storage.read(key: _favTeamsNotifsKey);
+      if (value == null) return true; // Enabled by default
+      return value.toLowerCase() == 'true';
+    } catch (e) {
+      debugPrint('Error reading fav teams notifs preference: $e');
+      return true;
+    }
+  }
+
+  Future<void> setFavoriteTeamsNotifsEnabled(bool enabled) async {
+    try {
+      await _storage.write(key: _favTeamsNotifsKey, value: enabled.toString());
+    } catch (e) {
+      debugPrint('Error saving fav teams notifs preference: $e');
+    }
+  }
+
+  // ========== FCM TOKEN ==========
+
+  Future<void> saveFcmToken(String token) async {
+    try {
+      await _storage.write(key: _fcmTokenKey, value: token);
+    } catch (e) {
+      debugPrint('Error saving FCM token: $e');
+    }
+  }
+
+  Future<String?> getFcmToken() async {
+    try {
+      return await _storage.read(key: _fcmTokenKey);
+    } catch (e) {
+      debugPrint('Error reading FCM token: $e');
+      return null;
+    }
+  }
+
+  // ========== NOTIFIED EVENTS DEDUPING ==========
+
+  Future<bool> hasEventBeenNotified(String eventKey) async {
+    if (_cachedNotifiedEvents == null) {
+      try {
+        final val = await _storage.read(key: _notifiedEventsKey);
+        _cachedNotifiedEvents = (val != null && val.isNotEmpty)
+            ? val.split(',').toSet()
+            : <String>{};
+      } catch (_) {
+        _cachedNotifiedEvents = <String>{};
+      }
+    }
+    return _cachedNotifiedEvents!.contains(eventKey);
+  }
+
+  Future<void> markEventNotified(String eventKey) async {
+    try {
+      if (_cachedNotifiedEvents == null) {
+        final val = await _storage.read(key: _notifiedEventsKey);
+        _cachedNotifiedEvents = (val != null && val.isNotEmpty)
+            ? val.split(',').toSet()
+            : <String>{};
+      }
+      _cachedNotifiedEvents!.add(eventKey);
+      // Keep at most 200 recent event keys to conserve space
+      if (_cachedNotifiedEvents!.length > 200) {
+        _cachedNotifiedEvents = _cachedNotifiedEvents!.skip(50).toSet();
+      }
+      await _storage.write(
+          key: _notifiedEventsKey, value: _cachedNotifiedEvents!.join(','));
+    } catch (e) {
+      debugPrint('Error marking event notified: $e');
+    }
+  }
+
+  // ========== NOTIFICATION INBOX HISTORY ==========
+
+  Future<List<AppNotification>> getNotificationHistory() async {
+    if (_cachedNotificationHistory != null) {
+      return List.unmodifiable(_cachedNotificationHistory!);
+    }
+    try {
+      final jsonStr = await _storage.read(key: _notificationHistoryKey);
+      if (jsonStr == null || jsonStr.isEmpty) {
+        _cachedNotificationHistory = [];
+        return [];
+      }
+      _cachedNotificationHistory = AppNotification.decodeList(jsonStr);
+      return List.unmodifiable(_cachedNotificationHistory!);
+    } catch (e) {
+      debugPrint('Error reading notification history: $e');
+      _cachedNotificationHistory = [];
+      return [];
+    }
+  }
+
+  Future<void> saveNotificationHistory(List<AppNotification> list) async {
+    try {
+      _cachedNotificationHistory = list;
+      final jsonStr = AppNotification.encodeList(list);
+      await _storage.write(key: _notificationHistoryKey, value: jsonStr);
+    } catch (e) {
+      debugPrint('Error saving notification history: $e');
+    }
+  }
+
+  Future<void> addNotificationToHistory(AppNotification notification) async {
+    try {
+      final existing = _cachedNotificationHistory ?? await getNotificationHistory();
+      final list = [notification, ...existing];
+      // Cap at 500 items to prevent unbounded growth
+      final capped = list.length > 500 ? list.sublist(0, 500) : list;
+      await saveNotificationHistory(capped);
+    } catch (e) {
+      debugPrint('Error adding notification to history: $e');
+    }
+  }
+
+  Future<void> clearNotificationHistory() async {
+    try {
+      _cachedNotificationHistory = [];
+      await _storage.delete(key: _notificationHistoryKey);
+    } catch (e) {
+      debugPrint('Error clearing notification history: $e');
+    }
+  }
+
+  Future<int> getUnreadNotificationCount() async {
+    final list = await getNotificationHistory();
+    return list.where((n) => !n.isRead).length;
   }
 
   // ========== THEME & ACCENT ==========

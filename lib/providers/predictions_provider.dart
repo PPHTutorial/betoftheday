@@ -4,6 +4,7 @@ import '../models/league_model.dart';
 import '../services/predicd_scraper_service.dart';
 import '../services/storage_service.dart';
 import '../services/prediction_engine.dart';
+import '../services/notification_service.dart';
 
 class PredictionsProvider with ChangeNotifier {
   PredictionsProvider() {
@@ -100,18 +101,18 @@ class PredictionsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Parallel cache loading for zero-lag startup
+      // Load cache in parallel — but NOT the heavy historical DB on cold start
       await Future.wait([
         _loadLeaguesFromCache(),
         _loadMatchesFromCache(),
-        _loadHistoryFromCache(),
       ]);
 
       _isLoading = false;
       notifyListeners();
 
-      // Silent background fetch to ensure fresh data
-      _aggressiveSilentFetch();
+      // Defer silent background fetch by 3 s so the UI fully paints first.
+      // This is the primary fix for startup ANR / jank.
+      Future.delayed(const Duration(seconds: 3), _aggressiveSilentFetch);
     } catch (e) {
       debugPrint('Error during eager load: $e');
       _isLoading = false;
@@ -132,10 +133,11 @@ class PredictionsProvider with ChangeNotifier {
     if (cached.isNotEmpty) {
       _matches = cached;
       debugPrint('📦 Loaded ${cached.length} matches from cache');
+      NotificationService().checkAndNotifyMatches(_matches);
     }
   }
 
-  Future<void> _loadHistoryFromCache() async {
+  Future<void> loadHistoryFromCache() async {
     final cached = await _storage.getHistoricalDatabase();
     if (cached.isNotEmpty) {
       _previousMatches = cached;
@@ -144,21 +146,27 @@ class PredictionsProvider with ChangeNotifier {
   }
 
   /// Triggered by UI or App Lifecycle (Foreground)
-  Future<void> syncFreshData() async {
-    // Throttle foreground sync to 15 mins
-    if (_lastSyncTime != null &&
+  Future<void> syncFreshData({bool force = false}) async {
+    // Throttle foreground sync to 15 mins unless explicitly forced
+    if (!force &&
+        _lastSyncTime != null &&
         DateTime.now().difference(_lastSyncTime!).inMinutes < 15) {
       return;
     }
     await _aggressiveSilentFetch();
   }
 
+  bool _isSyncing = false;
+
   Future<void> _aggressiveSilentFetch() async {
+    if (_isSyncing) return; // Prevent concurrent fetches
+    _isSyncing = true;
     debugPrint('🚀 Starting Aggressive Silent Fetch...');
     _lastSyncTime = DateTime.now();
+    bool dataChanged = false;
 
     try {
-      // 1. Fetch Today, Tomorrow, and Schedule in parallel isolates
+      // 1. Fetch Today, Tomorrow, and Schedule in parallel
       final results = await Future.wait([
         _scraper.fetchTodayMatches(),
         _scraper.fetchMatchSchedule(dayOffset: 1),
@@ -176,20 +184,26 @@ class PredictionsProvider with ChangeNotifier {
         final enriched =
             await compute(PredictionEngine.calculateAll, allRecent);
         await _storage.cacheMatches(enriched);
-        await _storage.mergeIntoHistoricalDatabase(enriched);
+        // Merge history off the hot path — fire-and-forget
+        _storage.mergeIntoHistoricalDatabase(enriched);
         _matches = enriched;
+        dataChanged = true;
+        NotificationService().checkAndNotifyMatches(_matches);
       }
 
       if (freshLeagues.isNotEmpty) {
         _leagues = freshLeagues;
         await _storage.cacheLeagues(freshLeagues);
+        dataChanged = true;
       }
 
       debugPrint('✅ Aggressive Silent Fetch completed.');
     } catch (e) {
       debugPrint('❌ Aggressive Silent Fetch error: $e');
     } finally {
-      notifyListeners();
+      _isSyncing = false;
+      // Only rebuild UI if something actually changed
+      if (dataChanged) notifyListeners();
     }
   }
 
@@ -216,9 +230,45 @@ class PredictionsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Legacy compat: mostly used for manual refresh now
-  Future<void> loadMatches() async {
-    await syncFreshData();
+  /// Refresh matches (with optional force flag to bypass 15m throttle)
+  Future<void> loadMatches({bool force = false}) async {
+    await syncFreshData(force: force);
+  }
+
+  /// Lightweight live-only refresh: only scrapes today's matches and updates
+  /// live state without running heavy compute isolates or querying all leagues.
+  Future<void> refreshLiveMatches() async {
+    if (_isSyncing) return;
+    try {
+      final today = await _scraper.fetchTodayMatches();
+      if (today.isEmpty) return;
+
+      final todayMap = {for (var m in today) m.id: m};
+      bool changed = false;
+
+      final updated = _matches.map((m) {
+        if (todayMap.containsKey(m.id)) {
+          final fresh = todayMap[m.id]!;
+          if (m.isLive != fresh.isLive ||
+              m.isFinished != fresh.isFinished ||
+              m.matchTime != fresh.matchTime) {
+            changed = true;
+          }
+          return fresh;
+        }
+        return m;
+      }).toList();
+
+      if (changed) {
+        _matches = updated;
+        notifyListeners();
+        // Persist to cache in background
+        _storage.cacheMatches(updated);
+        NotificationService().checkAndNotifyMatches(_matches);
+      }
+    } catch (e) {
+      debugPrint('Error refreshing live matches: $e');
+    }
   }
 
   /// Load matches for a specific league

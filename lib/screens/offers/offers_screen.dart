@@ -199,16 +199,14 @@ class _OffersScreenState extends State<OffersScreen> {
                           'Redeem VIP Pass',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Have a promotional code? Enter it below to unlock all AI predictions.',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: isDark
-                                ? const Color(0xFF94A3B8)
-                                : const Color(0xFF64748B),
+                            color: theme.colorScheme.onSurfaceVariant,
                             height: 1.4,
                           ),
                         ),
@@ -225,9 +223,7 @@ class _OffersScreenState extends State<OffersScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1E293B)
-                      : const Color(0xFFF1F5F9),
+                  color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(

@@ -134,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ],
                   ),
-                  if (_currentPage < _totalPages - 1)
+                  /* if (_currentPage < _totalPages - 1)
                     TextButton(
                       onPressed: _finishOnboarding,
                       child: Text(
@@ -144,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
-                    ),
+                    ), */
                 ],
               ),
             ),
@@ -462,6 +462,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Slide 5: Subscription Plans (Monthly, Yearly Best Value, Lifetime)
   Widget _buildSlideSubscription(ThemeData theme, bool isDark) {
+    // Read live RevenueCat products so prices are always current
+    final iap = Provider.of<IAPService>(context);
+    final products = iap.products;
+
+    // Helper: find price string from live products, fall back to AppConfig constant
+    String yearlyPrice = AppConfig.yearlyPrice;
+    String monthlyPrice = AppConfig.monthlyPrice;
+    String lifetimePrice = AppConfig.lifetimePrice;
+    if (products.isNotEmpty) {
+      for (final p in products) {
+        if (p.isYearly) yearlyPrice = '${p.price}${p.period}';
+        if (p.isLifetime) lifetimePrice = '${p.price} ${p.period}';
+        if (!p.isYearly && !p.isLifetime) monthlyPrice = '${p.price}${p.period}';
+      }
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
@@ -491,8 +507,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildPlanOption(
             index: 0,
             title: 'Annual VIP Pass',
-            price: AppConfig.yearlyPrice,
-            subtitle: '\$4.99/mo • Billed annually',
+            price: yearlyPrice,
+            subtitle: 'Best deal • Billed annually',
             badge: 'BEST VALUE (SAVE 50%)',
             isHighlight: true,
             theme: theme,
@@ -504,7 +520,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildPlanOption(
             index: 1,
             title: 'Monthly VIP Access',
-            price: AppConfig.monthlyPrice,
+            price: monthlyPrice,
             subtitle: 'Flexible monthly billing',
             theme: theme,
             isDark: isDark,
@@ -515,13 +531,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildPlanOption(
             index: 2,
             title: 'Lifetime VIP Pass',
-            price: AppConfig.lifetimePrice,
+            price: lifetimePrice,
             subtitle: 'Pay once, keep forever • Never bill again',
             badge: 'LIFETIME ACCESS',
             theme: theme,
             isDark: isDark,
           ),
           const SizedBox(height: 16),
+
+          if (iap.isLoading)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: LinearProgressIndicator(),
+            ),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/prediction_model.dart';
 import '../utils/responsive.dart';
 import '../utils/logo_loader.dart';
 import '../config/app_config.dart';
 import '../services/storage_service.dart';
+import '../services/iap_service.dart';
 import '../utils/odds_calculator.dart';
 import 'first_unlock_dialog.dart';
+import '../screens/settings/subscription_screen.dart';
 
 class MatchAnalysisView extends StatefulWidget {
   final MatchPrediction prediction;
@@ -177,12 +180,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
                 : theme.colorScheme.surfaceContainerHighest
                     .withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isSafe
-                  ? Colors.green.withValues(alpha: 0.3)
-                  : theme.colorScheme.outline.withValues(alpha: 0.1),
-              width: isSafe ? 2 : 1,
-            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,8 +281,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -333,22 +328,19 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
     return Container(
       padding: EdgeInsets.all(Responsive.spacing(24)),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-            theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(Responsive.radius(30)),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: theme.cardTheme.shadowColor ??
+                theme.colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: theme.colorScheme.primary.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -537,8 +529,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -617,7 +607,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           shape: BoxShape.circle,
-          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Center(
           child: Text(c,
@@ -635,19 +624,32 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
   }
 
   Widget _buildPredictionAnalysis(ThemeData theme) {
+    final primary = theme.colorScheme.primary;
+    final hsl = HSLColor.fromColor(primary);
+    final darkAccent = hsl
+        .withLightness((hsl.lightness * 0.4).clamp(0.12, 0.32))
+        .toColor();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primaryContainer
+            primary,
+            darkAccent,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: darkAccent.withValues(alpha: 0.35),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -688,138 +690,212 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
     final remainingSlots = AppConfig.maxDailyFreeUnlocks - _activeSlots;
     final canUnlockFree = remainingSlots > 0;
 
-    return Container(
-      padding: EdgeInsets.all(Responsive.spacing(24)),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(Responsive.radius(24)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(Icons.workspace_premium_rounded,
-                size: 40, color: theme.colorScheme.primary),
+    return Consumer<IAPService>(
+      builder: (context, iap, _) {
+        // Resolve live prices from RevenueCat, fall back to AppConfig constants
+        String yearlyPrice = AppConfig.yearlyPrice;
+        String monthlyPrice = AppConfig.monthlyPrice;
+        String lifetimePrice = AppConfig.lifetimePrice;
+        AppSubscriptionProduct? yearlyProduct;
+        AppSubscriptionProduct? monthlyProduct;
+        AppSubscriptionProduct? lifetimeProduct;
+        for (final p in iap.products) {
+          if (p.isYearly) {
+            yearlyPrice = '${p.price}${p.period}';
+            yearlyProduct = p;
+          } else if (p.isLifetime) {
+            lifetimePrice = '${p.price} ${p.period}';
+            lifetimeProduct = p;
+          } else {
+            monthlyPrice = '${p.price}${p.period}';
+            monthlyProduct = p;
+          }
+        }
+
+        Future<void> purchase(AppSubscriptionProduct? product) async {
+          if (product != null) {
+            await iap.buySubscription(product);
+          } else {
+            // Products not loaded yet — open full subscription screen
+            if (!mounted) return;
+            // ignore: use_build_context_synchronously
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SubscriptionScreen()));
+          }
+        }
+
+        return Container(
+          padding: EdgeInsets.all(Responsive.spacing(24)),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(Responsive.radius(24)),
           ),
-          SizedBox(height: Responsive.spacing(20)),
-          Text(
-            canUnlockFree
-                ? 'Free Discovery Available'
-                : 'Unlock Expert Analysis',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
-            ),
-          ),
-          SizedBox(height: Responsive.spacing(12)),
-          Text(
-            canUnlockFree
-                ? 'You have $remainingSlots free slots remaining. Unlock this match analysis for free!'
-                : AppConfig.premiumBenefit,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              height: 1.5,
-            ),
-          ),
-          SizedBox(height: Responsive.spacing(30)),
-          if (canUnlockFree) ...[
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _unlockForFree,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 8,
-                  shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Unlock for Free',
-                  style: TextStyle(
+                child: Icon(Icons.workspace_premium_rounded,
+                    size: 40, color: theme.colorScheme.primary),
+              ),
+              SizedBox(height: Responsive.spacing(20)),
+              Text(
+                canUnlockFree
+                    ? 'Free Discovery Available'
+                    : 'Unlock Expert Analysis',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              SizedBox(height: Responsive.spacing(12)),
+              Text(
+                canUnlockFree
+                    ? 'You have $remainingSlots free slots remaining. Unlock this match analysis for free!'
+                    : AppConfig.premiumBenefit,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: Responsive.spacing(30)),
+              if (canUnlockFree) ...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _unlockForFree,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      elevation: 8,
+                      shadowColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.3),
+                    ),
+                    child: const Text(
+                      'Unlock for Free',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          letterSpacing: 1),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Responsive.spacing(16)),
+                Text(
+                  'Slots are cleared once matches are played.',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: Responsive.spacing(24)),
+                const Divider(),
+                SizedBox(height: Responsive.spacing(16)),
+              ],
+              // ---- Yearly (Primary CTA) ----
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed:
+                      iap.isLoading ? null : () => purchase(yearlyProduct),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    elevation: 8,
+                    shadowColor:
+                        theme.colorScheme.primary.withValues(alpha: 0.3),
+                  ),
+                  child: iap.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : Text(
+                          'Annual Access — $yearlyPrice',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                ),
+              ),
+              SizedBox(height: Responsive.spacing(10)),
+              // ---- Monthly ----
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton(
+                  onPressed:
+                      iap.isLoading ? null : () => purchase(monthlyProduct),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: theme.colorScheme.primary, width: 2),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Monthly Access — $monthlyPrice',
+                    style: TextStyle(
                       fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                      letterSpacing: 1),
+                      fontSize: 14,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: Responsive.spacing(16)),
-            Text(
-              'Slots are cleared once matches are played.',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: Responsive.spacing(24)),
-            const Divider(),
-            SizedBox(height: Responsive.spacing(24)),
-          ],
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: () {}, // Trigger IAP flow
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                elevation: 8,
-                shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
-              ),
-              child: Text(
-                'Yearly Access for ${AppConfig.yearlyPrice}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14,
-                  letterSpacing: 0.5,
+              SizedBox(height: Responsive.spacing(10)),
+              // ---- Lifetime ----
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton(
+                  onPressed:
+                      iap.isLoading ? null : () => purchase(lifetimeProduct),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: const Color(0xFFFFB300), width: 2),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    '★ Lifetime Access — $lifetimePrice',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                      color: Color(0xFFFFB300),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          SizedBox(height: Responsive.spacing(12)),
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: () {}, // Trigger IAP flow
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: theme.colorScheme.primary, width: 2),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-              ),
-              child: Text(
-                'Monthly Access for ${AppConfig.monthlyPrice}',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14,
-                  color: theme.colorScheme.primary,
+              SizedBox(height: Responsive.spacing(12)),
+              TextButton(
+                onPressed: iap.isLoading ? null : () => iap.restorePurchases(),
+                child: Text(
+                  'Already a member? Restore Purchase',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    color:
+                        theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-          SizedBox(height: Responsive.spacing(16)),
-          TextButton(
-            onPressed: () {}, // Trigger restore
-            child: Text(
-              'Already a member? Restore Purchase',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -844,8 +920,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -939,8 +1013,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
           color:
               theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.1)),
         ),
         child: Center(
           child: Text(
@@ -958,8 +1030,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -1072,8 +1142,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
           color:
               theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.1)),
         ),
         child: Center(
           child: Text(
@@ -1099,8 +1167,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1128,11 +1194,6 @@ class _MatchAnalysisViewState extends State<MatchAnalysisView> {
                       : theme.colorScheme.surfaceContainerHighest
                           .withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isHighest
-                        ? theme.colorScheme.primary.withValues(alpha: 0.3)
-                        : theme.colorScheme.outline.withValues(alpha: 0.1),
-                  ),
                 ),
                 child: Column(
                   children: [

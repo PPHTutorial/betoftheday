@@ -3,7 +3,7 @@ description: AI-powered football predictions and betting tips.
 
 publish_to: 'none'
 
-version: 8.01.0+11
+version: 26.096.01+12
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
@@ -60,6 +60,7 @@ dependencies:
   in_app_review: ^2.0.11
   fl_chart: ^0.69.0
   flutter_inappwebview: ^6.1.5
+  font_awesome_flutter: ^10.9.1
 
 dev_dependencies:
   flutter_test:

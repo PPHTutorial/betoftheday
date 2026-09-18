@@ -1,50 +1,289 @@
 {
   "project_info": {
-    "project_number": "78357809458",
-    "project_id": "betoftheday-2022",
-    "storage_bucket": "betoftheday-2022.appspot.com"
+    "project_number": "1083709001383",
+    "project_id": "sanitarypad",
+    "storage_bucket": "sanitarypad.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:78357809458:android:6c0e0b9ea031051991af2b",
+        "mobilesdk_app_id": "1:1083709001383:android:ce7fab718977e78da4d582",
         "android_client_info": {
-          "package_name": "com.stsl.codeink.btd"
+          "package_name": "com.codeink.stsl.muvees"
         }
       },
       "oauth_client": [
         {
-          "client_id": "78357809458-19lpf9p20ba2lvo3qvsgpe8jhte2g1i0.apps.googleusercontent.com",
+          "client_id": "1083709001383-bnjl3ij2bsa8ob7dsc99g9lsr94bga6l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.stsl.codeink.btd",
-            "certificate_hash": "93236253d2b5a0c79bdddd37df0c5bb10c83d7ab"
+            "package_name": "com.codeink.stsl.muvees",
+            "certificate_hash": "c7c45707c56e946b50370c2989e74fbaa7c0abbd"
           }
         },
         {
-          "client_id": "78357809458-on0936ecc1dsauhdlot6v56capmu1fi5.apps.googleusercontent.com",
+          "client_id": "1083709001383-r95pgsh2fr6bt3cbq32m2o5hvmtj42ep.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.stsl.codeink.btd",
-            "certificate_hash": "03f9446a9f3f3bcf8301e7d3b3c039cea272e60a"
+            "package_name": "com.codeink.stsl.muvees",
+            "certificate_hash": "242083940ec3592c9a3081cb13b7dde294eb95b6"
           }
         },
         {
-          "client_id": "78357809458-msjqf0df5dg7u8a78hmkht69j86hh73p.apps.googleusercontent.com",
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAP9XQFfy2AFLHN88vAPPYmCFkyudOkM-w"
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "78357809458-msjqf0df5dg7u8a78hmkht69j86hh73p.apps.googleusercontent.com",
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083709001383:android:17cbdc92721b025fa4d582",
+        "android_client_info": {
+          "package_name": "com.codeink.technologes.sanitarypad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083709001383-kv0drdc75v0ocphpdahmgc6drceai1b0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codeink.technologes.sanitarypad",
+            "certificate_hash": "c7c45707c56e946b50370c2989e74fbaa7c0abbd"
+          }
+        },
+        {
+          "client_id": "1083709001383-oed72pcl1t9c16lmprcro5jf01d255lh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codeink.technologes.sanitarypad",
+            "certificate_hash": "242083940ec3592c9a3081cb13b7dde294eb95b6"
+          }
+        },
+        {
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083709001383:android:41a28e435be4a130a4d582",
+        "android_client_info": {
+          "package_name": "com.codeinktechnologies.iiluk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083709001383:android:1f6cfd2fd891a35aa4d582",
+        "android_client_info": {
+          "package_name": "com.stsl.codeink.btd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083709001383:android:eb6389319aef6755a4d582",
+        "android_client_info": {
+          "package_name": "com.stsl.codeink.iiluk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083709001383:android:cc82200fc6d64dc1a4d582",
+        "android_client_info": {
+          "package_name": "com.stsl.codeink.indocedit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083709001383:android:2efdb59dd44d6491a4d582",
+        "android_client_info": {
+          "package_name": "com.stsl.codeink.loudable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAapYscVQleBPGKnN6A98cWeTMIr2a0jcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1083709001383-5pg451v1r2tmek7b259rvdvdnp0dhuvb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1083709001383-folee2qjfggjkf27bvh51i74a530in8t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stsl.codeink.iiluk"
+              }
             }
           ]
         }

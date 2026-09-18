@@ -145,6 +145,11 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
                 backgroundColor: theme.colorScheme.surface,
                 selectedColor: theme.colorScheme.primary.withValues(alpha: 0.2),
                 checkmarkColor: theme.colorScheme.primary,
+                side: BorderSide.none,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide.none,
+                ),
                 labelStyle: TextStyle(
                     fontSize: 12,
                     fontWeight: sel ? FontWeight.w900 : FontWeight.normal,
@@ -229,8 +234,7 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
       padding: EdgeInsets.all(Responsive.spacing(10)),
       decoration: BoxDecoration(
           color: c.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: c.withOpacity(0.15))),
+          borderRadius: BorderRadius.circular(14)),
       child: Column(children: [
         Icon(icon, color: c, size: 18),
         const SizedBox(height: 4),
@@ -309,7 +313,6 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
                   Colors.teal.withValues(alpha: 0.05),
                 ]),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -585,11 +588,6 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
                           : theme.colorScheme.surfaceContainerHighest
                               .withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: isTop
-                              ? theme.colorScheme.primary.withValues(alpha: 0.3)
-                              : theme.colorScheme.outline
-                                  .withValues(alpha: 0.1)),
                     ),
                     child: Text('${e.key}  ×${e.value}',
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -604,9 +602,7 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                     color: Colors.amber.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: Colors.amber.withValues(alpha: 0.2))),
+                    borderRadius: BorderRadius.circular(10)),
                 child: Row(children: [
                   const Icon(Icons.emoji_events_rounded,
                       color: Colors.amber, size: 18),
@@ -630,8 +626,7 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
           color: c.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: c.withValues(alpha: 0.15))),
+          borderRadius: BorderRadius.circular(12)),
       child: Column(children: [
         Text(value,
             style: theme.textTheme.titleLarge
@@ -818,8 +813,6 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(8),
-        border:
-            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
       ),
       child: Wrap(spacing: 16, runSpacing: 8, children: [
         _miniStat(theme, 'Win Rate', '${winRate.toStringAsFixed(1)}%'),
@@ -1268,170 +1261,406 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
       return scoreOf(b).compareTo(scoreOf(a));
     });
 
-    const totalPages = 10;
-    final perPage = (finishedOnly.length / totalPages).ceil().clamp(1, 500);
-    final pageStart = (_matchLogPage * perPage).clamp(0, finishedOnly.length);
-    final pageEnd = (pageStart + perPage).clamp(0, finishedOnly.length);
+    const int perPage = 5;
+    final int actualPages =
+        (finishedOnly.length / perPage).ceil().clamp(1, 999);
+    final int currentPage = _matchLogPage.clamp(0, actualPages - 1);
+    final int pageStart = (currentPage * perPage).clamp(0, finishedOnly.length);
+    final int pageEnd = (pageStart + perPage).clamp(0, finishedOnly.length);
     final pageItems = finishedOnly.sublist(pageStart, pageEnd);
-    final actualPages =
-        (finishedOnly.length / perPage).ceil().clamp(1, totalPages);
 
     return _section(
-        theme,
-        isDark,
-        'Winning Streak List (${finishedOnly.length})',
-        Icons.list_alt_rounded,
-        Column(
-          children: [
-            // Page navigation
+      theme,
+      isDark,
+      'Winning Streak List (${finishedOnly.length})',
+      Icons.list_alt_rounded,
+      Column(
+        children: [
+          // Page navigation (only shown if more than 1 page)
+          if (actualPages > 1) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
                   icon: Icon(Icons.chevron_left_rounded,
-                      color: _matchLogPage > 0
+                      color: currentPage > 0
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.2)),
-                  onPressed: _matchLogPage > 0
-                      ? () => setState(() => _matchLogPage--)
+                  onPressed: currentPage > 0
+                      ? () => setState(() => _matchLogPage = currentPage - 1)
                       : null,
                 ),
-                Row(
-                  children: List.generate(actualPages, (i) {
-                    final isActive = i == _matchLogPage;
-                    return GestureDetector(
-                      onTap: () => setState(() => _matchLogPage = i),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: isActive ? 24 : 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    );
-                  }),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _buildCollapsedDots(
+                      currentPage: currentPage,
+                      totalPages: actualPages,
+                      theme: theme,
+                    ),
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.chevron_right_rounded,
-                      color: _matchLogPage < actualPages - 1
+                      color: currentPage < actualPages - 1
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.2)),
-                  onPressed: _matchLogPage < actualPages - 1
-                      ? () => setState(() => _matchLogPage++)
+                  onPressed: currentPage < actualPages - 1
+                      ? () => setState(() => _matchLogPage = currentPage + 1)
                       : null,
                 ),
               ],
             ),
             Text(
-              'Page ${_matchLogPage + 1} of $actualPages  ·  ${finishedOnly.length} matches',
+              'Page ${currentPage + 1} of $actualPages  ·  ${finishedOnly.length} matches',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-            // Match rows for current page
-            ...pageItems.map((m) {
-              final hit = m.isSafeHit; // Show safety first
-              final exact = m.isExactScoreHit;
-              final rescued = !hit && (m.isOutcomeHit || m.isAnyBetHit);
-              return InkWell(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => DraggableScrollableSheet(
-                      initialChildSize: 0.9,
-                      minChildSize: 0.5,
-                      maxChildSize: 0.95,
-                      builder: (_, sc) => ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(24)),
-                          child: MatchAnalysisView(prediction: m)),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              color: theme.colorScheme.outline
-                                  .withValues(alpha: 0.05)))),
-                  child: Row(children: [
-                    Icon(
-                        exact
-                            ? Icons.stars_rounded
-                            : m.isSafeHit
-                                ? Icons.verified_rounded
-                                : hit
-                                    ? Icons.check_circle_rounded
-                                    : rescued
-                                        ? Icons.shield_rounded
-                                        : Icons.cancel_rounded,
-                        size: 16,
-                        color: exact
-                            ? Colors.amber
-                            : m.isSafeHit
-                                ? Colors.green
-                                : hit
-                                    ? Colors.lightGreen
-                                    : rescued
-                                        ? Colors.teal
-                                        : Colors.redAccent),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        flex: 3,
-                        child: Text(m.homeTeam,
-                            style: const TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis)),
-                    SizedBox(
-                        width: 45,
-                        child: Text(m.liveResult ?? '-',
-                            style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w900,
-                                color: theme.colorScheme.primary),
-                            textAlign: TextAlign.center)),
-                    Expanded(
-                        flex: 3,
-                        child: Text(m.awayTeam,
-                            style: const TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.end)),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                        width: 40,
-                        child: Text(m.prediction ?? '-',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5)),
-                            textAlign: TextAlign.center)),
-                    SizedBox(
-                        width: 35,
-                        child: Text(
-                            m.totalXG > 0 ? m.totalXG.toStringAsFixed(1) : '-',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.4)),
-                            textAlign: TextAlign.end)),
-                  ]),
+            const SizedBox(height: 12),
+          ] else
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'Showing ${finishedOnly.length} matches',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                  fontWeight: FontWeight.bold,
                 ),
-              );
-            }).toList(),
-          ],
-        ));
+              ),
+            ),
+
+          if (finishedOnly.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'No completed matches yet.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            ),
+
+          // Match vertical cards for current page
+          ...pageItems.map((m) {
+            final hit = m.isSafeHit;
+            final exact = m.isExactScoreHit;
+            final rescued = !hit && (m.isOutcomeHit || m.isAnyBetHit);
+
+            final Color statusColor;
+            final IconData statusIcon;
+            final String statusText;
+
+            if (exact) {
+              statusColor = Colors.amber;
+              statusIcon = Icons.stars_rounded;
+              statusText = 'Exact Score';
+            } else if (m.isSafeHit) {
+              statusColor = Colors.green;
+              statusIcon = Icons.verified_rounded;
+              statusText = 'Safe Win';
+            } else if (hit) {
+              statusColor = Colors.lightGreen;
+              statusIcon = Icons.check_circle_rounded;
+              statusText = 'Prediction Hit';
+            } else if (rescued) {
+              statusColor = Colors.teal;
+              statusIcon = Icons.shield_rounded;
+              statusText = 'Outcome Hit';
+            } else {
+              statusColor = Colors.redAccent;
+              statusIcon = Icons.cancel_rounded;
+              statusText = 'Missed';
+            }
+
+            final rawScore = m.liveResult?.trim() ?? '';
+            final scoreParts = rawScore.split(RegExp(r'[\s\-:]+'));
+            final homeScore =
+                scoreParts.isNotEmpty && scoreParts[0].isNotEmpty
+                    ? scoreParts[0]
+                    : '-';
+            final awayScore =
+                scoreParts.length > 1 && scoreParts[1].isNotEmpty
+                    ? scoreParts[1]
+                    : '-';
+
+            final dateStr =
+                '${m.matchDate.day.toString().padLeft(2, '0')}/${m.matchDate.month.toString().padLeft(2, '0')}';
+            final leagueName = m.league.isNotEmpty ? m.league : 'Match';
+
+            return InkWell(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => DraggableScrollableSheet(
+                    initialChildSize: 0.9,
+                    minChildSize: 0.5,
+                    maxChildSize: 0.95,
+                    builder: (_, sc) => ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(24)),
+                      child: MatchAnalysisView(prediction: m),
+                    ),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF0F172A).withValues(alpha: 0.6)
+                      : theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Row: League & Date on left, Status Pill on right
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(Icons.sports_soccer_rounded,
+                                  size: 13,
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: 0.8)),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  '$leagueName • $dateStr',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.5),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(statusIcon, size: 12, color: statusColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                statusText,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Vertical Teams Layout:
+                    // Home team row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            m.homeTeam,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          homeScore,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    // Away team row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            m.awayTeam,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          awayScore,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Footer Pills Row: Prediction & xG
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Tip: ${m.prediction ?? "-"}',
+                            style: TextStyle(
+                              color: theme.colorScheme.primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (m.totalXG > 0) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color:
+                                  theme.colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'xG ${m.totalXG.toStringAsFixed(1)}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                            ),
+                          ),
+                        ],
+                        const Spacer(),
+                        Text(
+                          'Analysis',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.4),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.4),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // ───────────────────────────────────────────────────────
+  //  COLLAPSED DOT PAGINATION (avoids 800+ dot overflow)
+  // ───────────────────────────────────────────────────────
+  List<Widget> _buildCollapsedDots({
+    required int currentPage,
+    required int totalPages,
+    required ThemeData theme,
+  }) {
+    // Determine which page indices to show as dots.
+    // Always show: first, last, and a window of ±1 around current.
+    final Set<int> visible = {};
+    visible.add(0);
+    visible.add(totalPages - 1);
+    for (int i = currentPage - 1; i <= currentPage + 1; i++) {
+      if (i >= 0 && i < totalPages) visible.add(i);
+    }
+
+    final sorted = visible.toList()..sort();
+    final List<Widget> items = [];
+
+    for (int idx = 0; idx < sorted.length; idx++) {
+      final page = sorted[idx];
+
+      // Insert ellipsis if there's a gap between consecutive visible pages
+      if (idx > 0 && page - sorted[idx - 1] > 1) {
+        items.add(
+          GestureDetector(
+            onTap: () {
+              // Jump 10 pages towards the gap direction
+              final gapMid = ((sorted[idx - 1] + page) / 2).round();
+              setState(() => _matchLogPage = gapMid.clamp(0, totalPages - 1));
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                '···',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      final isActive = page == currentPage;
+      items.add(
+        GestureDetector(
+          onTap: () => setState(() => _matchLogPage = page),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 3),
+            width: isActive ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return items;
   }
 
   // ───────────────────────────────────────────────────────
@@ -1442,12 +1671,8 @@ class _MatchCentreState extends State<AdvancedAnalyticsScreen> {
     return Container(
       padding: EdgeInsets.all(Responsive.spacing(16)),
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF1E293B)
-            : theme.colorScheme.surfaceContainerHighest,
+        color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [

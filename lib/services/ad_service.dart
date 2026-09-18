@@ -16,74 +16,39 @@ class AdService {
   static const appId = "ca-app-pub-1777613531225133~5189073412";
 
   // Production Ad Unit IDs (Android)
-  static const String _bannerAdUnitIdAndroid =
-      "ca-app-pub-1777613531225133/5209254712"; // Banner fallback
   static const String _interstitialAdUnitIdAndroid =
       "ca-app-pub-1777613531225133/5209254712";
   static const String _rewardedAdUnitIdAndroid =
       "ca-app-pub-1777613531225133/5332990758";
   static const String _rewardedInterstitialAdUnitIdAndroid =
       "ca-app-pub-1777613531225133/9336201989";
-  static const String _nativeAdUnitIdAndroid =
-      "ca-app-pub-9043208558525567/8885783104";
-  static const String _appOpenAdUnitIdAndroid =
-      "ca-app-pub-9043208558525567/1910801906";
 
-  // Production Ad Unit IDs (iOS - placeholders, update with real IDs when available)
-  static const String _bannerAdUnitIdIOS =
-      "ca-app-pub-9043208558525567/9587568687"; // Using android as placeholder
+  // Production Ad Unit IDs (iOS)
   static const String _interstitialAdUnitIdIOS =
       "ca-app-pub-9043208558525567/5458613802";
   static const String _rewardedAdUnitIdIOS =
       "ca-app-pub-9043208558525567/7701633764";
   static const String _rewardedInterstitialAdUnitIdIOS =
       "ca-app-pub-9043208558525567/6580123782";
-  static const String _nativeAdUnitIdIOS =
-      "ca-app-pub-9043208558525567/8885783104";
-  static const String _appOpenAdUnitIdIOS =
-      "ca-app-pub-9043208558525567/1910801906";
 
   // Use test ad units only in non-release builds (debug/profile)
   static bool get _useTestAds => !kReleaseMode;
 
   // Test Ad Unit IDs (Android)
-  static const String _testBannerAdUnitIdAndroid =
-      'ca-app-pub-3940256099942544/6300978111';
   static const String _testInterstitialAdUnitIdAndroid =
       'ca-app-pub-3940256099942544/1033173712';
   static const String _testRewardedAdUnitIdAndroid =
       'ca-app-pub-3940256099942544/5224354917';
   static const String _testRewardedInterstitialAdUnitIdAndroid =
       'ca-app-pub-3940256099942544/5354025313';
-  static const String _testNativeAdUnitIdAndroid =
-      'ca-app-pub-3940256099942544/2247696110';
-  static const String _testAppOpenAdUnitIdAndroid =
-      'ca-app-pub-3940256099942544/3419835294';
 
   // Test Ad Unit IDs (iOS)
-  static const String _testBannerAdUnitIdIOS =
-      'ca-app-pub-3940256099942544/2934735716';
   static const String _testInterstitialAdUnitIdIOS =
       'ca-app-pub-3940256099942544/4411468910';
   static const String _testRewardedAdUnitIdIOS =
       'ca-app-pub-3940256099942544/1712485313';
   static const String _testRewardedInterstitialAdUnitIdIOS =
       'ca-app-pub-3940256099942544/6978759866';
-  static const String _testNativeAdUnitIdIOS =
-      'ca-app-pub-3940256099942544/3986624511';
-  static const String _testAppOpenAdUnitIdIOS =
-      'ca-app-pub-3940256099942544/5662855259';
-
-  static String get bannerAdUnitId {
-    if (_useTestAds) {
-      return defaultTargetPlatform == TargetPlatform.iOS
-          ? _testBannerAdUnitIdIOS
-          : _testBannerAdUnitIdAndroid;
-    }
-    return defaultTargetPlatform == TargetPlatform.iOS
-        ? _bannerAdUnitIdIOS
-        : _bannerAdUnitIdAndroid;
-  }
 
   static String get interstitialAdUnitId {
     if (_useTestAds) {
@@ -118,47 +83,20 @@ class AdService {
         : _rewardedInterstitialAdUnitIdAndroid;
   }
 
-  static String get nativeAdUnitId {
-    if (_useTestAds) {
-      return defaultTargetPlatform == TargetPlatform.iOS
-          ? _testNativeAdUnitIdIOS
-          : _testNativeAdUnitIdAndroid;
-    }
-    return defaultTargetPlatform == TargetPlatform.iOS
-        ? _nativeAdUnitIdIOS
-        : _nativeAdUnitIdAndroid;
-  }
-
-  static String get appOpenAdUnitId {
-    if (_useTestAds) {
-      return defaultTargetPlatform == TargetPlatform.iOS
-          ? _testAppOpenAdUnitIdIOS
-          : _testAppOpenAdUnitIdAndroid;
-    }
-    return defaultTargetPlatform == TargetPlatform.iOS
-        ? _appOpenAdUnitIdIOS
-        : _appOpenAdUnitIdAndroid;
-  }
-
   RewardedAd? _rewardedAd;
   RewardedInterstitialAd? _rewardedInterstitialAd;
   InterstitialAd? _interstitialAd;
-  AppOpenAd? _appOpenAd;
   int _rewardAdWatchCount = 0;
-  bool _isAppOpenAdReady = false;
   bool _isInitialized = false;
 
   // Frequency capping - prevent ads from showing too frequently (AdMob policy)
   DateTime? _lastInterstitialAdShown;
-  DateTime? _lastAppOpenAdShown;
   DateTime? _lastImageClickAdShown;
 
   static const Duration _minInterstitialInterval =
       Duration(seconds: 60); // 1 minute minimum
   static const Duration _minImageClickAdInterval =
       Duration(seconds: 30); // 30 seconds for image clicks
-  static const Duration _minAppOpenAdInterval =
-      Duration(minutes: 5); // 5 minutes for app open ads
 
   /// Check if user is a premium user (should not see ads)
   Future<bool> isPremiumUser() async {
@@ -212,7 +150,7 @@ class AdService {
         loadRewardedAd(),
         loadInterstitialAd(),
         loadRewardedInterstitialAd(),
-        loadAppOpenAd(),
+        //loadAppOpenAd(),
       ]);
       debugPrint('Ads preloaded');
     } catch (e) {
@@ -300,53 +238,7 @@ class AdService {
     }
   }
 
-  Future<void> loadAppOpenAd() async {
-    // Don't load if premium user
-    if (await isPremiumUser()) {
-      _isAppOpenAdReady = false;
-      return;
-    }
 
-    try {
-      debugPrint('Loading app open ad: $appOpenAdUnitId');
-      await AppOpenAd.load(
-        adUnitId: appOpenAdUnitId,
-        request: const AdRequest(),
-        adLoadCallback: AppOpenAdLoadCallback(
-          onAdLoaded: (ad) {
-            debugPrint('App open ad loaded successfully');
-            _appOpenAd = ad;
-            _isAppOpenAdReady = true;
-            ad.fullScreenContentCallback = FullScreenContentCallback(
-              onAdDismissedFullScreenContent: (ad) {
-                debugPrint('App open ad dismissed');
-                ad.dispose();
-                _appOpenAd = null;
-                _isAppOpenAdReady = false;
-                loadAppOpenAd(); // Preload next app open ad
-              },
-              onAdFailedToShowFullScreenContent: (ad, error) {
-                debugPrint(
-                    'App open ad failed to show: ${error.code} - ${error.message}');
-                ad.dispose();
-                _appOpenAd = null;
-                _isAppOpenAdReady = false;
-                loadAppOpenAd();
-              },
-            );
-          },
-          onAdFailedToLoad: (error) {
-            debugPrint(
-                'App open ad failed to load: ${error.code} - ${error.message}');
-            _appOpenAd = null;
-            _isAppOpenAdReady = false;
-          },
-        ),
-      );
-    } catch (e) {
-      debugPrint('Exception loading app open ad: $e');
-    }
-  }
 
   Future<bool> showRewardedAd({
     required Function() onRewarded,
@@ -613,37 +505,7 @@ class AdService {
     return shown;
   }
 
-  Future<bool> showAppOpenAd() async {
-    // Skip if premium user
-    if (await isPremiumUser()) return false;
-
-    // Frequency capping for app open ads (5 minutes minimum)
-    if (_lastAppOpenAdShown != null) {
-      final timeSinceLastAd = DateTime.now().difference(_lastAppOpenAdShown!);
-      if (timeSinceLastAd < _minAppOpenAdInterval) {
-        debugPrint(
-            'App open ad frequency cap: ${_minAppOpenAdInterval.inMinutes - timeSinceLastAd.inMinutes}min remaining');
-        return false;
-      }
-    }
-
-    if (!_isAppOpenAdReady || _appOpenAd == null) {
-      debugPrint('App open ad not ready, loading...');
-      await loadAppOpenAd();
-      await Future.delayed(const Duration(seconds: 2));
-      return false;
-    }
-
-    try {
-      _lastAppOpenAdShown = DateTime.now();
-      await _appOpenAd!.show();
-      debugPrint('App open ad shown successfully');
-      return true;
-    } catch (e) {
-      debugPrint('Exception showing app open ad: $e');
-      return false;
-    }
-  }
+  Future<bool> showAppOpenAd() async => false;
 
   /// Show a random ad (rewarded or rewarded interstitial) for freemium features
   Future<bool> showRandomAd({
@@ -671,7 +533,7 @@ class AdService {
     _rewardAdWatchCount = 0;
   }
 
-  bool get isAppOpenAdReady => _isAppOpenAdReady;
+  bool get isAppOpenAdReady => false;
 
   bool get isInitialized => _isInitialized;
 }

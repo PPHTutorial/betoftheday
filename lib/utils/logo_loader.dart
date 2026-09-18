@@ -202,6 +202,13 @@ class _LogoWidget extends StatefulWidget {
 }
 
 class _LogoWidgetState extends State<_LogoWidget> {
+  /// Static in-memory cache: cacheKey → resolved path (or empty string = not found).
+  static final Map<String, String> _pathCache = {};
+
+  /// Set of all asset paths bundled in the app, loaded once via AssetManifest.
+  static Set<String>? _availableAssets;
+  static bool _isLoadingManifest = false;
+
   String? _foundPath;
 
   @override
@@ -210,7 +217,44 @@ class _LogoWidgetState extends State<_LogoWidget> {
     _tryLoadLogo();
   }
 
+  static Future<void> _ensureManifestLoaded() async {
+    if (_availableAssets != null) return;
+    if (_isLoadingManifest) {
+      while (_availableAssets == null) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      return;
+    }
+    _isLoadingManifest = true;
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      _availableAssets = manifest.listAssets().toSet();
+    } catch (e) {
+      _availableAssets = {};
+    } finally {
+      _isLoadingManifest = false;
+    }
+  }
+
   Future<void> _tryLoadLogo() async {
+    final cacheKey = '${widget.isTeam ? 't' : 'l'}:${widget.name}';
+
+    // Fast path: already resolved in memory
+    if (_pathCache.containsKey(cacheKey)) {
+      if (mounted) {
+        setState(() {
+          final cached = _pathCache[cacheKey]!;
+          _foundPath = cached.isEmpty ? null : cached;
+        });
+      }
+      return;
+    }
+
+    // Ensure asset manifest is loaded once
+    if (_availableAssets == null) {
+      await _ensureManifestLoaded();
+    }
+
     final variations = LogoLoader.generateNameVariations(widget.name);
     final extensions = ['png', 'svg', 'jpg', 'jpeg', 'webp'];
     final basePath = widget.isTeam ? 'assets/teams/' : 'assets/leagues/';
@@ -219,24 +263,21 @@ class _LogoWidgetState extends State<_LogoWidget> {
       for (final ext in extensions) {
         final path = '$basePath$variation.$ext';
 
-        try {
-          // Try to load the asset
-          await rootBundle.load(path);
-          // If successful, use this path
+        // O(1) Set check — never throws exceptions or performs async I/O
+        if (_availableAssets!.contains(path)) {
+          _pathCache[cacheKey] = path;
           if (mounted) {
             setState(() {
               _foundPath = path;
             });
-            return;
           }
-        } catch (e) {
-          // Asset doesn't exist, try next
-          continue;
+          return;
         }
       }
     }
 
-    // No logo found
+    // No logo found — cache the miss
+    _pathCache[cacheKey] = '';
     if (mounted) {
       setState(() {
         _foundPath = null;

@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/prediction_model.dart';
 import '../utils/responsive.dart';
 import '../utils/logo_loader.dart';
 import '../utils/odds_calculator.dart';
+import '../utils/paywall_guard.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import '../services/ad_service.dart'; // Added AdService import
@@ -30,11 +31,34 @@ class MatchCard extends StatefulWidget {
 }
 
 class _MatchCardState extends State<MatchCard> {
+  bool _isBookmarked = false;
+  bool _isUnlocked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadStatus();
+  }
+
+  /// Single async call on mount â€” replaces 3 per-build FutureBuilder widgets.
+  Future<void> _preloadStatus() async {
+    final storage = StorageService();
+    final results = await Future.wait([
+      storage.isBookmarked(widget.prediction.id),
+      storage.isMatchUnlocked(widget.prediction.id),
+    ]);
+    if (mounted) {
+      setState(() {
+        _isBookmarked = results[0];
+        _isUnlocked = results[1];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final prediction = widget.prediction;
 
     return Container(
@@ -43,28 +67,19 @@ class _MatchCardState extends State<MatchCard> {
         vertical: Responsive.spacing(8),
       ),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(Responsive.radius(24)),
-        gradient: LinearGradient(
-          colors: isDark
-              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-              : [
-                  Colors.white,
-                  theme.colorScheme.primary.withValues(alpha: 0.02)
-                ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(
-          color:
-              theme.colorScheme.outline.withValues(alpha: isDark ? 0.1 : 0.03),
-          width: 1,
-        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: theme.cardTheme.shadowColor ??
+                theme.colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: theme.colorScheme.primary.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -123,52 +138,49 @@ class _MatchCardState extends State<MatchCard> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FutureBuilder<bool>(
-                            future:
-                                StorageService().isBookmarked(prediction.id),
-                            builder: (context, snapshot) {
-                              final initialBookmark = snapshot.data ?? false;
-                              return StatefulBuilder(
-                                  builder: (context, setStateInner) {
-                                // Keep track of local optimistic updates
-                                return Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: () async {
-                                      await StorageService()
-                                          .toggleBookmark(prediction.id);
-                                      if (!initialBookmark) {
-                                        NotificationService()
-                                            .showBookmarkNotification(
-                                                prediction);
-                                      }
-                                      setStateInner(() {});
-                                    },
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.all(Responsive.spacing(4)),
-                                      child: FutureBuilder<bool>(
-                                          future: StorageService()
-                                              .isBookmarked(prediction.id),
-                                          initialData: initialBookmark,
-                                          builder: (context, currentSnap) {
-                                            final isBookmarked =
-                                                currentSnap.data ?? false;
-                                            return Icon(
-                                              isBookmarked
-                                                  ? Icons.bookmark_rounded
-                                                  : Icons
-                                                      .bookmark_border_rounded,
-                                              color: theme.colorScheme.primary,
-                                              size: Responsive.fontSize(20),
-                                            );
-                                          }),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () async {
+                              // Paywall gate - bookmarking is a premium feature
+                              if (!PaywallGuard.isSubscribed(context)) {
+                                PaywallGuard.showPaywall(context);
+                                return;
+                              }
+                              // Optimistic toggle
+                              setState(() => _isBookmarked = !_isBookmarked);
+                              await StorageService()
+                                  .toggleBookmark(prediction.id);
+                              if (_isBookmarked) {
+                                NotificationService()
+                                    .showBookmarkNotification(prediction);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'ðŸ“Œ Bookmarked ${prediction.homeTeam} vs ${prediction.awayTeam}! Alerts enabled.'),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: const Duration(seconds: 2),
                                     ),
-                                  ),
-                                );
-                              });
-                            }),
+                                  );
+                                }
+                              }
+                            },
+                            child: Padding(
+                              padding:
+                                  EdgeInsets.all(Responsive.spacing(4)),
+                              child: Icon(
+                                _isBookmarked
+                                    ? Icons.bookmark_rounded
+                                    : Icons.bookmark_border_rounded,
+                                color: theme.colorScheme.primary,
+                                size: Responsive.fontSize(20),
+                              ),
+                            ),
+                          ),
+                        ),
                         SizedBox(width: Responsive.spacing(8)),
                         if (prediction.isFinished || prediction.isLive)
                           Material(
@@ -231,7 +243,7 @@ class _MatchCardState extends State<MatchCard> {
                                   ? prediction.matchTime
                                   : DateFormat('HH:mm')
                                       .format(prediction.matchDate);
-                              return '$dateStr • $timeStr';
+                              return '$dateStr â€¢ $timeStr';
                             })(),
                             style: theme.textTheme.labelSmall?.copyWith(
                               fontWeight: FontWeight.w700,
@@ -286,108 +298,96 @@ class _MatchCardState extends State<MatchCard> {
                 ),
                 SizedBox(height: Responsive.spacing(16)),
 
-                // Prediction/Tip Footer
                 if (prediction.prediction != null)
-                  FutureBuilder<bool>(
-                      future: StorageService().isMatchUnlocked(prediction.id),
-                      builder: (context, snapshot) {
-                        final isUnlocked = snapshot.data ?? false;
+                  Builder(builder: (context) {
+                    final canView = _isUnlocked || prediction.isFinished;
 
-                        final canView = isUnlocked || prediction.isFinished;
-
-                        return Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Responsive.spacing(12),
-                            vertical: Responsive.spacing(10),
-                          ),
-                          decoration: BoxDecoration(
-                            color: prediction.isFinished
-                                ? (prediction.isPredictionHit == true
-                                    ? Colors.green.withValues(alpha: 0.05)
-                                    : Colors.red.withValues(alpha: 0.05))
-                                : theme.colorScheme.primary
-                                    .withValues(alpha: 0.05),
-                            borderRadius:
-                                BorderRadius.circular(Responsive.radius(12)),
-                            border: Border.all(
-                                color: prediction.isFinished
-                                    ? (prediction.isPredictionHit == true
-                                        ? Colors.green.withValues(alpha: 0.1)
-                                        : Colors.red.withValues(alpha: 0.1))
-                                    : theme.colorScheme.primary
-                                        .withValues(alpha: 0.1)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                  prediction.isFinished
+                    return Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Responsive.spacing(12),
+                        vertical: Responsive.spacing(10),
+                      ),
+                      decoration: BoxDecoration(
+                        color: prediction.isFinished
+                            ? (prediction.isPredictionHit == true
+                                ? Colors.green.withValues(alpha: 0.05)
+                                : Colors.red.withValues(alpha: 0.05))
+                            : theme.colorScheme.primary
+                                .withValues(alpha: 0.05),
+                        borderRadius:
+                            BorderRadius.circular(Responsive.radius(12)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                              prediction.isFinished
+                                  ? (prediction.isPredictionHit == true
+                                      ? Icons.check_circle_rounded
+                                      : Icons.cancel_rounded)
+                                  : (canView
+                                      ? Icons.auto_graph_rounded
+                                      : Icons.lock_rounded),
+                              size: 16,
+                              color: theme.colorScheme.primary),
+                          SizedBox(width: Responsive.spacing(8)),
+                          Expanded(
+                            child: Text(
+                              canView
+                                  ? (prediction.isFinished
                                       ? (prediction.isPredictionHit == true
-                                          ? Icons.check_circle_rounded
-                                          : Icons.cancel_rounded)
-                                      : (canView
-                                          ? Icons.auto_graph_rounded
-                                          : Icons.lock_rounded),
-                                  size: 16,
-                                  color: theme.colorScheme.primary),
-                              SizedBox(width: Responsive.spacing(8)),
-                              Expanded(
-                                child: Text(
-                                  canView
-                                      ? (prediction.isFinished
-                                          ? (prediction.isPredictionHit == true
-                                              ? 'PREDICTION HIT'
-                                              : 'PREDICTION MISS')
-                                          : 'PREDICTED SCORE: ${prediction.prediction}')
-                                      : 'Unlock to view prediction',
-                                  style: theme.textTheme.labelMedium?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    color: prediction.isFinished && canView
-                                        ? (prediction.isPredictionHit == true
-                                            ? Colors.green
-                                            : Colors.red)
-                                        : theme.colorScheme.primary,
-                                    letterSpacing: 0.5,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                          ? 'PREDICTION HIT'
+                                          : 'PREDICTION MISS')
+                                      : 'PREDICTED SCORE: ${prediction.prediction}')
+                                  : 'Unlock to view prediction',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: prediction.isFinished && canView
+                                    ? (prediction.isPredictionHit == true
+                                        ? Colors.green
+                                        : Colors.red)
+                                    : theme.colorScheme.primary,
+                                letterSpacing: 0.5,
                               ),
-                              if (!prediction.isFinished && isUnlocked) ...[
-                                SizedBox(width: Responsive.spacing(8)),
-                                SizedBox(
-                                  height: 28,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      AdService.instance.showInterstitialAd(
-                                        onAdClosed: () {
-                                          _showOddsBottomSheet(
-                                              context, prediction, theme);
-                                        },
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          theme.colorScheme.primary,
-                                      foregroundColor: Colors.white,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: Responsive.spacing(12)),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      elevation: 0,
-                                    ),
-                                    child: const Text('GET ODDS ',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12)),
-                                  ),
-                                ),
-                              ]
-                            ],
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        );
-                      }),
+                          if (!prediction.isFinished && _isUnlocked) ...[
+                            SizedBox(width: Responsive.spacing(8)),
+                            SizedBox(
+                              height: 28,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  AdService.instance.showInterstitialAd(
+                                    onAdClosed: () {
+                                      _showOddsBottomSheet(
+                                          context, prediction, theme);
+                                    },
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      theme.colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: Responsive.spacing(12)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(8)),
+                                  elevation: 0,
+                                ),
+                                child: const Text('GET ODDS ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12)),
+                              ),
+                            ),
+                          ]
+                        ],
+                      ),
+                    );
+                  }),
                 /* if (prediction.matchResult != null)
                   Padding(
                     padding: EdgeInsets.only(top: Responsive.spacing(12)),
@@ -512,12 +512,8 @@ class _MatchCardState extends State<MatchCard> {
               horizontal: Responsive.spacing(20),
               vertical: Responsive.spacing(12)),
           decoration: BoxDecoration(
-            color: isDark
-                ? const Color(0xFF1E293B)
-                : theme.colorScheme.surfaceContainerHighest,
+            color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.3)),
           ),
           child: Text(value.toStringAsFixed(2),
               style: theme.textTheme.titleMedium?.copyWith(
@@ -529,7 +525,7 @@ class _MatchCardState extends State<MatchCard> {
   }
 }
 
-class _TeamInfo extends StatelessWidget {
+class _TeamInfo extends StatefulWidget {
   final String name;
   final String? logo;
   final bool isHome;
@@ -537,36 +533,135 @@ class _TeamInfo extends StatelessWidget {
   const _TeamInfo({required this.name, this.logo, required this.isHome});
 
   @override
+  State<_TeamInfo> createState() => _TeamInfoState();
+}
+
+class _TeamInfoState extends State<_TeamInfo> {
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavorite();
+  }
+
+  @override
+  void didUpdateWidget(_TeamInfo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.name != widget.name) {
+      _checkFavorite();
+    }
+  }
+
+  Future<void> _checkFavorite() async {
+    final isFav = await StorageService().isFavoriteTeam(widget.name);
+    if (mounted) setState(() => _isFavorite = isFav);
+  }
+
+  Future<void> _toggleFavorite() async {
+    final nowFav = await StorageService().toggleFavoriteTeam(widget.name);
+    if (mounted) {
+      setState(() => _isFavorite = nowFav);
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            nowFav
+                ? 'â­ Added ${widget.name} to favorite clubs! Alerts enabled.'
+                : 'Removed ${widget.name} from favorite clubs.',
+          ),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      children: [
-        Container(
-          width: Responsive.width(44),
-          height: Responsive.width(44),
-          decoration:
-              const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-          child: Padding(
-            padding: EdgeInsets.all(Responsive.spacing(6)),
-            child: logo != null
-                ? Image.network(logo!,
-                    errorBuilder: (_, __, ___) =>
-                        LogoLoader.teamLogo(name, size: 30))
-                : LogoLoader.teamLogo(name, size: 30),
+    return GestureDetector(
+      onLongPress: () {
+        // Paywall gate â€” favourite teams is a premium feature
+        if (!PaywallGuard.isSubscribed(context)) {
+          PaywallGuard.showPaywall(context);
+          return;
+        }
+        _toggleFavorite();
+      },
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: Responsive.width(44),
+                height: Responsive.width(44),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: _isFavorite
+                      ? Border.all(color: Colors.amber, width: 2)
+                      : null,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(Responsive.spacing(6)),
+                  child: widget.logo != null
+                      ? Image.network(
+                          widget.logo!,
+                          cacheWidth: 100,
+                          cacheHeight: 100,
+                          errorBuilder: (_, __, ___) =>
+                              LogoLoader.teamLogo(widget.name, size: 30),
+                        )
+                      : LogoLoader.teamLogo(widget.name, size: 30),
+                ),
+              ),
+              if (_isFavorite)
+                Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.amber,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.star_rounded,
+                      size: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+            ],
           ),
-        ),
-        SizedBox(height: Responsive.spacing(8)),
-        Text(
-          name,
-          style: theme.textTheme.labelMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            fontSize: Responsive.fontSize(12),
+          SizedBox(height: Responsive.spacing(8)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.name,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: _isFavorite ? FontWeight.w900 : FontWeight.w700,
+                    fontSize: Responsive.fontSize(12),
+                    color: _isFavorite ? Colors.amber : null,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (_isFavorite) ...[
+                const SizedBox(width: 3),
+                const Icon(Icons.star_rounded, size: 12, color: Colors.amber),
+              ],
+            ],
           ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -583,7 +678,6 @@ class _LiveBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(Responsive.radius(6)),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

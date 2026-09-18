@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:in_app_review/in_app_review.dart';
@@ -14,6 +14,9 @@ import '../highlights/highlights_screen.dart';
 import '../offers/offers_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import 'subscription_screen.dart';
+import '../../utils/paywall_guard.dart';
+import 'favorite_teams_screen.dart';
+import '../../screens/notifications/notification_inbox_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +28,10 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String _version = '1.0.0';
   bool _notificationsEnabled = true;
+  bool _bookmarkedNotifsEnabled = true;
+  bool _favTeamsNotifsEnabled = true;
+  int _favoriteTeamsCount = 0;
+
 
   @override
   void initState() {
@@ -34,11 +41,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadAppInfo() async {
     final info = await PackageInfo.fromPlatform();
-    final notifs = await StorageService().getNotificationsEnabled();
+    final storage = StorageService();
+    final notifs = await storage.getNotificationsEnabled();
+    final bmNotifs = await storage.getBookmarkedNotifsEnabled();
+    final favNotifs = await storage.getFavoriteTeamsNotifsEnabled();
+    final favTeams = await storage.getFavoriteTeams();
     if (mounted) {
       setState(() {
         _version = '${info.version}+${info.buildNumber}';
         _notificationsEnabled = notifs;
+        _bookmarkedNotifsEnabled = bmNotifs;
+        _favTeamsNotifsEnabled = favNotifs;
+        _favoriteTeamsCount = favTeams.length;
       });
     }
   }
@@ -110,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 theme,
                 isDark,
                 icon: Icons.confirmation_num_rounded,
-                color: Colors.teal,
+                color: theme.colorScheme.primary,
                 title: 'Offers & Promo Codes',
                 subtitle: 'Redeem pass or claim free codes',
                 trailing: const Icon(Icons.chevron_right_rounded, size: 20),
@@ -163,6 +177,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               ),
+              if (_notificationsEnabled) ...[
+                _buildSettingTile(
+                  theme,
+                  isDark,
+                  icon: Icons.bookmark_added_rounded,
+                  color: theme.colorScheme.primary,
+                  title: 'Bookmarked Match Alerts',
+                  subtitle: 'Kickoff, live & score updates for saved games',
+                  trailing: Switch.adaptive(
+                    value: _bookmarkedNotifsEnabled,
+                    activeColor: theme.colorScheme.primary,
+                    onChanged: (val) async {
+                      setState(() => _bookmarkedNotifsEnabled = val);
+                      await StorageService().setBookmarkedNotifsEnabled(val);
+                    },
+                  ),
+                ),
+                _buildSettingTile(
+                  theme,
+                  isDark,
+                  icon: Icons.star_rate_rounded,
+                  color: theme.colorScheme.primary,
+                  title: 'Favorite Teams Alerts',
+                  subtitle: 'Matchday alerts for your favorite clubs',
+                  trailing: Switch.adaptive(
+                    value: _favTeamsNotifsEnabled,
+                    activeColor: theme.colorScheme.primary,
+                    onChanged: (val) async {
+                      setState(() => _favTeamsNotifsEnabled = val);
+                      await StorageService().setFavoriteTeamsNotifsEnabled(val);
+                    },
+                  ),
+                ),
+                /* _buildSettingTile(
+                  theme,
+                  isDark,
+                  icon: Icons.notification_important_rounded,
+                  color: Colors.amber,
+                  title: 'Send Test Notification',
+                  subtitle: 'Verify notification banner & sound on this device',
+                  trailing: Icon(
+                    Icons.play_arrow_rounded,
+                    color: theme.colorScheme.primary,
+                    size: 24,
+                  ),
+                  onTap: () async {
+                    await NotificationService().sendTestNotification();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('ðŸ”” Test notification sent! Check your notification bar.'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                if (_fcmToken != null && _fcmToken!.isNotEmpty)
+                  _buildSettingTile(
+                    theme,
+                    isDark,
+                    icon: Icons.key_rounded,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    title: 'FCM Push Token',
+                    subtitle: '${_fcmToken!.substring(0, 16)}... (Tap to copy)',
+                    trailing: Icon(
+                      Icons.copy_rounded,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: _fcmToken!));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Copied FCM registration token to clipboard!'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ), */
+              ],
             ],
           ),
           SizedBox(height: Responsive.spacing(30)),
@@ -174,11 +271,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSettingTile(
                 theme,
                 isDark,
+                icon: Icons.inbox_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Notification History',
+                subtitle: 'View & manage saved notifications',
+                trailing: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationInboxScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
+                icon: Icons.star_rounded,
+                color: theme.colorScheme.primary,
+                title: 'Favorite Teams',
+                subtitle: _favoriteTeamsCount > 0
+                    ? '$_favoriteTeamsCount clubs tracked for matchday alerts'
+                    : 'Add clubs to receive kickoff & live alerts',
+                trailing: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
+                onTap: () async {
+                  // Paywall gate - favourite teams is a premium feature
+                  if (!PaywallGuard.isSubscribed(context)) {
+                    PaywallGuard.showPaywall(context);
+                    return;
+                  }
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const FavoriteTeamsScreen(),
+                    ),
+                  );
+                  _loadAppInfo();
+                },
+              ),
+              _buildSettingTile(
+                theme,
+                isDark,
                 icon: Icons.bookmark_rounded,
                 color: theme.colorScheme.primary,
                 title: 'Bookmarked Matches',
                 subtitle: 'Your saved match alerts',
                 onTap: () async {
+                  // Paywall gate - bookmarked matches is a premium feature
+                  if (!PaywallGuard.isSubscribed(context)) {
+                    PaywallGuard.showPaywall(context);
+                    return;
+                  }
                   final provider =
                       Provider.of<PredictionsProvider>(context, listen: false);
                   final bookmarkedIds =
@@ -324,7 +476,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SizedBox(height: Responsive.spacing(40)),
           Center(
             child: Text(
-              '© 2026 BET OF THE DAY\nPREMIUM FOOTBALL ANALYSIS',
+              'Â© 2026 BET OF THE DAY\nPREMIUM FOOTBALL ANALYSIS',
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
                 fontWeight: FontWeight.w900,
@@ -424,7 +576,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: colors.map((c) {
-            final isSelected = provider.accentColor.value == c.value;
+            final isSelected = provider.accentColor.toARGB32() == c.toARGB32();
             return GestureDetector(
               onTap: () => provider.setAccentColor(c),
               child: Container(

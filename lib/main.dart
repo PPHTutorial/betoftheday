@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/scheduler.dart' hide Priority;
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 
 import 'config/app_config.dart';
@@ -20,44 +18,14 @@ import 'services/background_sync_service.dart';
 import 'services/iap_service.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/notifications/notification_inbox_screen.dart';
 
-// Firebase Messaging
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'high_importance_channel',
-  'High Importance Notifications',
-  description: 'This channel is used for important notifications.',
-  importance: Importance.high,
-);
-
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  if (Firebase.apps.isEmpty) {
-    if (kIsWeb) {
-      await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: "AIzaSyCxoD09ZD0P_SOFAGGOeGzHHakQ2FwsFPo",
-          authDomain: "betoftheday-2022.firebaseapp.com",
-          projectId: "betoftheday-2022",
-          storageBucket: "betoftheday-2022.appspot.com",
-          messagingSenderId: "78357809458",
-          appId: "1:78357809458:web:1ea7fccf716dce5f91af2b",
-          measurementId: "G-FC9GQ0VLSS",
-        ),
-      );
-    } else {
-      await Firebase.initializeApp();
-    }
-  }
-  debugPrint('Handling background message: ${message.messageId}');
-}
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
+  // Initialize Firebase (fail-soft like Loudable blueprint)
   if (Firebase.apps.isEmpty) {
     if (kIsWeb) {
       await Firebase.initializeApp(
@@ -72,9 +40,16 @@ Future<void> main() async {
         ),
       );
     } else {
-      await Firebase.initializeApp();
+      try {
+        await Firebase.initializeApp();
+      } catch (e) {
+        debugPrint('Firebase not configured yet — continuing without push: $e');
+      }
     }
   }
+
+  // Initialize Notification Service (FCM & Local)
+  await NotificationService.instance.initialize();
 
   // Initialize Services
   await Future.wait([
@@ -82,34 +57,11 @@ Future<void> main() async {
     IAPService().initialize(),
   ]);
 
-  // Initialize Firebase Messaging
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  if (!kIsWeb) {
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-  }
-
-  // Initialize Notification Service (FCM & Local)
-  await NotificationService().init();
-
   // Pre-fetch Codeink Campaign in background
   CampaignService.instance.fetch();
 
   // Initialize Scraper Service
   await PredicdScraperService().initialize();
-
-  // Initialize Ad Service
-  await AdService.instance.initialize();
 
   // Initialize Background Sync
   await BackgroundSyncService.initialize();
@@ -142,7 +94,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    NotificationService.instance.pendingRoute.addListener(_handlePendingRoute);
     _checkOnboarding();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handlePendingRoute();
+    });
+  }
+
+  void _handlePendingRoute() {
+    final route = NotificationService.instance.pendingRoute.value;
+    if (route != null && route.isNotEmpty) {
+      NotificationService.instance.pendingRoute.value = null;
+      rootNavigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const NotificationInboxScreen()),
+      );
+    }
   }
 
   Future<void> _checkOnboarding() async {
@@ -157,6 +123,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    NotificationService.instance.pendingRoute.removeListener(_handlePendingRoute);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -165,9 +132,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      AdService.instance.showAppOpenAd();
       // Trigger silent sync on foreground return to ensure fresh data
       Provider.of<PredictionsProvider>(context, listen: false).syncFreshData();
+      _handlePendingRoute();
     }
   }
 
@@ -206,6 +173,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         SystemChrome.setSystemUIOverlayStyle(overlayStyle);
 
         return MaterialApp(
+          navigatorKey: rootNavigatorKey,
           debugShowCheckedModeBanner: false,
           title: AppConfig.appName,
           theme: AppTheme.lightTheme(context,

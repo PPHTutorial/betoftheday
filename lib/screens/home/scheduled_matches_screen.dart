@@ -129,15 +129,6 @@ class _DaySelector extends StatelessWidget {
                       : theme.colorScheme.surfaceContainerHighest
                           .withValues(alpha: isDark ? 0.4 : 0.3),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected
-                        ? theme.colorScheme.primary
-                        : (isDark
-                            ? Colors.white.withValues(alpha: 0.05)
-                            : theme.colorScheme.onSurface
-                                .withValues(alpha: 0.03)),
-                    width: 1,
-                  ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(

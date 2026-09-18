@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../utils/responsive.dart';
-import '../config/app_config.dart';
 
 /// Modern gradient card widget matching the betting app design
 class GradientCard extends StatelessWidget {
@@ -26,11 +25,14 @@ class GradientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
-    final defaultColors = colors ??
-        [
-          const Color(AppConfig.primary500), // Orange 500
-          const Color(AppConfig.primary600), // Orange 600
-        ];
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final hsl = HSLColor.fromColor(primary);
+    final darkAccent = hsl
+        .withLightness((hsl.lightness * 0.4).clamp(0.12, 0.32))
+        .toColor();
+
+    final defaultColors = colors ?? [primary, darkAccent];
 
     return Container(
       height: height,

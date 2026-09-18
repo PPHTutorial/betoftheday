@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bet Of The Day — AI-Powered Football Predictions, xG Stats & Daily Tips</title>
+  <meta name="description" content="Institutional-grade football analytics, Poisson simulations, Expected Goals (xG), and high-probability VIP banker picks in your pocket." />
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#10B981',
+              dark: '#059669',
+              light: '#34D399',
+              bg: '#064E3B',
+              surface: '#0E121A',
+            },
+            dark: {
+              bg: '#08090D',
+              card: '#0F131C',
+              border: 'rgba(255, 255, 255, 0.07)',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            heading: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #08090D;
+      color: #F1F5F9;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .heading-font {
+      font-family: 'Outfit', sans-serif;
+    }
+    .glass-nav {
+      background: rgba(8, 9, 13, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-card:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      transform: translateY(-2px);
+    }
+    .glow-bg {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-blob-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 55%;
+      height: 55%;
+      background: rgba(16, 185, 129, 0.12);
+      filter: blur(160px);
+      border-radius: 9999px;
+    }
+    .glow-blob-2 {
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: rgba(5, 150, 105, 0.08);
+      filter: blur(160px);
+      border-radius: 9999px;
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #34D399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge-pill {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+    }
+  </style>
+</head>
+<body class="selection:bg-emerald-500 selection:text-white relative">
+  <!-- Glow Layer -->
+  <div class="glow-bg">
+    <div class="glow-blob-1"></div>
+    <div class="glow-blob-2"></div>
+  </div>
+
+  <!-- Sticky Glassmorphism Header -->
+  <header class="glass-nav fixed top-0 inset-x-0 z-50 transition-all duration-200">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#hero" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg tracking-wider transition-transform group-hover:scale-105"
+             style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);">
+          ⚽
+        </div>
+        <div class="flex flex-col">
+          <span class="heading-font font-black text-white text-lg tracking-tight leading-none">
+            Bet Of The Day
+          </span>
+          <span class="text-[10px] font-bold tracking-widest uppercase text-emerald-400 mt-1">
+            AI Analytics &bull; xG Intel
+          </span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#features" class="hover:text-emerald-400 transition-colors">Features</a>
+        <a href="#how-it-works" class="hover:text-emerald-400 transition-colors">How It Works</a>
+        <a href="#stats" class="hover:text-emerald-400 transition-colors">Performance</a>
+        <a href="#pricing" class="hover:text-emerald-400 transition-colors">VIP Plans</a>
+        <a href="#faqs" class="hover:text-emerald-400 transition-colors">FAQs</a>
+      </nav>
+
+      <!-- CTA Buttons -->
+      <div class="hidden sm:flex items-center gap-3">
+        <button onclick="openLegalModal('privacy')" class="text-xs font-semibold text-slate-400 hover:text-white px-3 py-2">
+          Legal
+        </button>
+        <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank" rel="noopener noreferrer"
+           class="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white transition-all duration-200 hover:scale-105 active:scale-95 flex items-center gap-2"
+           style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);">
+          <span>Get BTD Free</span>
+          <span>&rarr;</span>
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button id="menu-btn" onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-400 hover:text-white focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-white/5 bg-[#08090D]/95 px-6 py-5 space-y-4">
+      <a href="#features" onclick="toggleMobileMenu()" class="block text-sm font-medium text-slate-300 hover:text-emerald-400">Features</a>
+      <a href="#how-it-works" onclick="toggleMobileMenu()" class="block text-sm font-medium text-slate-300 hover:text-emerald-400">How It Works</a>
+      <a href="#stats" onclick="toggleMobileMenu()" class="block text-sm font-medium text-slate-300 hover:text-emerald-400">Performance</a>
+      <a href="#pricing" onclick="toggleMobileMenu()" class="block text-sm font-medium text-slate-300 hover:text-emerald-400">VIP Plans</a>
+      <a href="#faqs" onclick="toggleMobileMenu()" class="block text-sm font-medium text-slate-300 hover:text-emerald-400">FAQs</a>
+      <div class="pt-4 border-t border-white/5 flex flex-col gap-2">
+        <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank"
+           class="w-full text-center py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-emerald-600">
+          Download Android App
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="hero" class="relative z-10 pt-36 pb-20 md:pt-44 md:pb-28 px-6 text-center max-w-5xl mx-auto">
+    <!-- Top Pill -->
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold badge-pill mb-8">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>10,000+ DAILY MONTE CARLO SIMULATIONS</span>
+    </div>
+
+    <!-- Main Headline -->
+    <h1 class="heading-font text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white leading-[1.08] mb-6">
+      AI-Powered Football Predictions, <br class="hidden sm:inline" />
+      <span class="text-gradient">xG Stats &amp; Daily Edge</span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-slate-400 text-base sm:text-xl max-w-3xl mx-auto leading-relaxed mb-10">
+      Stop relying on emotional guesses. Bet Of The Day brings institutional-grade Expected Goals (xG), Poisson distributions, and curated banker tips straight to your phone.
+    </p>
+
+    <!-- Download Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+      <!-- Play Store Badge -->
+      <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank" rel="noopener noreferrer"
+         class="inline-flex items-center gap-3 px-6 py-3.5 rounded-full text-white font-semibold text-sm transition-all hover:scale-105 active:scale-95 bg-slate-900 border border-white/15 shadow-xl">
+        <svg class="w-5 h-5 fill-current text-emerald-400" viewBox="0 0 24 24">
+          <path d="M3.609 1.814L13.793 12 3.61 22.186a2.41 2.41 0 0 1-.61-.92L3 21.03V2.97c0-.447.123-.88.35-1.256l.26.1zM15.207 13.414l2.793 2.793-11.45 6.61 8.657-9.403zm0-2.828L6.55 1.183l11.45 6.61-2.793 2.793zm1.414 1.414l3.77-2.176a1.5 1.5 0 0 1 0 2.6l-3.77 2.176v-2.6z" />
+        </svg>
+        <div class="flex flex-col text-left">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 leading-none">GET IT ON</span>
+          <span class="font-bold text-sm leading-none mt-1">Google Play</span>
+        </div>
+      </a>
+
+      <!-- Direct APK / Specs Button -->
+      <a href="#features" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-slate-300 text-sm font-semibold border border-white/10 hover:bg-white/5 transition-colors">
+        <span>Explore Intelligence Engine</span>
+        <span>&darr;</span>
+      </a>
+    </div>
+
+    <!-- Phone Mockup Frame Preview -->
+    <div class="relative max-w-sm sm:max-w-md mx-auto">
+      <div class="absolute -inset-1.5 rounded-[44px] bg-gradient-to-b from-emerald-500/30 to-emerald-500/0 blur-xl opacity-75"></div>
+      <div class="relative rounded-[40px] border border-white/15 bg-slate-950/80 p-3 shadow-2xl backdrop-blur-2xl">
+        <!-- Phone Speaker Notch -->
+        <div class="w-24 h-4 bg-slate-900 rounded-full mx-auto mb-3 flex items-center justify-center">
+          <div class="w-2 h-2 rounded-full bg-slate-700 mr-2"></div>
+          <div class="w-10 h-1 bg-slate-800 rounded-full"></div>
+        </div>
+        <!-- Mock App Screen -->
+        <div class="rounded-[32px] bg-[#0C0E14] border border-white/5 p-4 text-left overflow-hidden">
+          <!-- Top Bar in App -->
+          <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-white">TODAY'S HIGHEST VALUE</span>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">78.4% CONF</span>
+          </div>
+
+          <!-- Fixture Card -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 mb-3">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2">
+              <span>UEFA Champions League</span>
+              <span class="text-emerald-400 font-bold">20:00 UTC</span>
+            </div>
+            <div class="flex items-center justify-between font-extrabold text-sm text-white">
+              <span>Arsenal</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">2.45 xG</span>
+              <span>Bayern Munich</span>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
+              <span class="text-slate-400">AI Recommendation</span>
+              <span class="font-bold text-emerald-400">Over 2.5 Goals (82%)</span>
+            </div>
+          </div>
+
+          <!-- Quick Metrics Bar -->
+          <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
+            <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="text-slate-500">Home Win</div>
+              <div class="font-bold text-white mt-0.5">54.2%</div>
+            </div>
+            <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="text-slate-500">Draw</div>
+              <div class="font-bold text-white mt-0.5">24.6%</div>
+            </div>
+            <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="text-slate-500">Away Win</div>
+              <div class="font-bold text-white mt-0.5">21.2%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Stats Strip -->
+  <section id="stats" class="relative z-10 border-y border-white/5 bg-white/[0.01] py-10">
+    <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div>
+        <div class="heading-font text-3xl md:text-4xl font-black text-white">78.4%</div>
+        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1">Top-Tier Pick Accuracy</div>
+      </div>
+      <div>
+        <div class="heading-font text-3xl md:text-4xl font-black text-white">50+</div>
+        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1">Global Leagues Covered</div>
+      </div>
+      <div>
+        <div class="heading-font text-3xl md:text-4xl font-black text-white">10K+</div>
+        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1">Daily Match Simulations</div>
+      </div>
+      <div>
+        <div class="heading-font text-3xl md:text-4xl font-black text-white">24/7</div>
+        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1">Real-Time Telemetry</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="relative z-10 py-24 px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold badge-pill mb-4">
+        <span>CORE CAPABILITIES</span>
+      </div>
+      <h2 class="heading-font text-3xl sm:text-5xl font-black text-white">
+        Engineered for Serious Football Analysis
+      </h2>
+      <p class="text-slate-400 text-base max-w-xl mx-auto mt-4">
+        Six foundational modules providing deep statistical advantage across pre-match and in-play markets.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Feature 1 -->
+      <div class="glass-card p-8 rounded-3xl transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+          🧠
+        </div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Algorithmic Engine</div>
+        <h3 class="text-xl font-bold text-white mb-3">AI Prediction Engine</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Deep machine learning ensembles synthesizing 10,000+ match simulations using Poisson distributions and Bayesian modeling.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="glass-card p-8 rounded-3xl transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+          📊
+        </div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Advanced Metrics</div>
+        <h3 class="text-xl font-bold text-white mb-3">Expected Goals (xG) Intel</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Uncover true shot quality, danger zone entries, and expected threat (xT) to identify undervalued teams in the market.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="glass-card p-8 rounded-3xl transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xl font-bold mb-6">
+          🔒
+        </div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1">VIP Exclusive</div>
+        <h3 class="text-xl font-bold text-white mb-3">High-Confidence Bankers</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Carefully selected daily accumulator tips with mathematical probability exceeding 68% and positive expected value (+EV).
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="glass-card p-8 rounded-3xl transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+          📡
+        </div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Live In-Play</div>
+        <h3 class="text-xl font-bold text-white mb-3">Real-Time Match Tracker</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Minute-by-minute live clocks, verified scores, and shifting match momentum indicators without screen freezing or heavy lag.
+        </p>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="glass-card p-8 rounded-3xl transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+          📈
+        </div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Audited Records</div>
+        <h3 class="text-xl font-bold text-white mb-3">Winning Streak Analytics</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Transparent historical database tracking every past tip, hit-rate, and ROI yield. Zero retroactive edits or hidden losses.
+        </p>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="glass-card p-8 rounded-3xl transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xl font-bold mb-6">
+          🔔
+        </div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Instant Push</div>
+        <h3 class="text-xl font-bold text-white mb-3">Kickoff &amp; Value Alerts</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Instant notifications when starting line-ups release, sharp money shifts market lines, or high-value odds deviations occur.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="relative z-10 py-20 px-6 max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="heading-font text-3xl sm:text-4xl font-black text-white">
+        Three Simple Steps to Data-Driven Bets
+      </h2>
+      <p class="text-slate-400 text-sm mt-2">From raw fixtures to verified analytical value in seconds</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="glass-card p-8 rounded-3xl relative">
+        <div class="text-4xl font-black text-emerald-500/30 mb-4 font-mono">01</div>
+        <h3 class="text-lg font-bold text-white mb-2">Browse Today's Fixtures</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Access hundreds of games across 50+ leagues, sorted by time, league hierarchy, or prediction confidence tier.
+        </p>
+      </div>
+
+      <div class="glass-card p-8 rounded-3xl relative">
+        <div class="text-4xl font-black text-emerald-500/30 mb-4 font-mono">02</div>
+        <h3 class="text-lg font-bold text-white mb-2">Inspect AI Probabilities</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Review Poisson-simulated percentages for 1X2, Over/Under 2.5 goals, BTTS, and expected goals margin distributions.
+        </p>
+      </div>
+
+      <div class="glass-card p-8 rounded-3xl relative">
+        <div class="text-4xl font-black text-emerald-500/30 mb-4 font-mono">03</div>
+        <h3 class="text-lg font-bold text-white mb-2">Lock In High-Value Slips</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Combine high-conviction banker picks and safe singles backed by verified mathematical edge instead of intuition.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Plans Section -->
+  <section id="pricing" class="relative z-10 py-24 px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold badge-pill mb-4">
+        <span>TRANSPARENT VALUE</span>
+      </div>
+      <h2 class="heading-font text-3xl sm:text-5xl font-black text-white">
+        Choose Your Winning Edge
+      </h2>
+      <p class="text-slate-400 text-base max-w-xl mx-auto mt-4">
+        Start free with daily rolling unlocks, or step up to PRO VIP for unlimited access and zero ads.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+      <!-- Monthly Plan -->
+      <div class="glass-card p-8 rounded-3xl flex flex-col justify-between">
+        <div>
+          <h3 class="font-bold text-lg text-white mb-2">Monthly PRO</h3>
+          <p class="text-slate-400 text-xs mb-6">Flexible month-to-month access for active weekend bettors.</p>
+          <div class="flex items-baseline gap-1 mb-6">
+            <span class="heading-font text-4xl font-black text-white">$9.99</span>
+            <span class="text-slate-400 text-xs">/month</span>
+          </div>
+          <ul class="space-y-3 text-xs text-slate-300">
+            <li class="flex items-center gap-2">✓ Unlimited match unlocks 24/7</li>
+            <li class="flex items-center gap-2">✓ All VIP Banker high-confidence tips</li>
+            <li class="flex items-center gap-2">✓ Full xG and offensive/defensive metrics</li>
+            <li class="flex items-center gap-2">✓ Completely ad-free experience</li>
+          </ul>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank"
+           class="mt-8 block w-full py-3 rounded-full text-xs font-bold text-center uppercase tracking-wider text-white border border-white/15 hover:bg-white/5 transition-colors">
+          Get Monthly Access
+        </a>
+      </div>
+
+      <!-- Yearly Plan (Popular) -->
+      <div class="p-8 rounded-3xl flex flex-col justify-between relative border-2 border-emerald-500 bg-emerald-950/20 backdrop-blur-xl shadow-2xl">
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-black bg-emerald-400 shadow-lg">
+          SAVE 50% &bull; MOST POPULAR
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-white mb-2">Yearly PRO</h3>
+          <p class="text-slate-300 text-xs mb-6">Unbeatable value covering all domestic leagues and international cups.</p>
+          <div class="flex items-baseline gap-1 mb-6">
+            <span class="heading-font text-4xl font-black text-white">$59.99</span>
+            <span class="text-slate-400 text-xs">/year (just $4.99/mo)</span>
+          </div>
+          <ul class="space-y-3 text-xs text-slate-200">
+            <li class="flex items-center gap-2">✓ <strong>Everything in Monthly PRO</strong></li>
+            <li class="flex items-center gap-2">✓ 50% discount vs monthly billing</li>
+            <li class="flex items-center gap-2">✓ Priority VIP push notifications</li>
+            <li class="flex items-center gap-2">✓ Access to exclusive accumulator bundles</li>
+            <li class="flex items-center gap-2">✓ VIP Community priority badge</li>
+          </ul>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank"
+           class="mt-8 block w-full py-3.5 rounded-full text-xs font-black text-center uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 shadow-xl transition-all hover:scale-105">
+          Claim 50% Discount
+        </a>
+      </div>
+
+      <!-- Lifetime VIP -->
+      <div class="glass-card p-8 rounded-3xl flex flex-col justify-between">
+        <div>
+          <h3 class="font-bold text-lg text-white mb-2">Lifetime VIP</h3>
+          <p class="text-slate-400 text-xs mb-6">Pay once, own the algorithmic predictions forever. Zero rebills.</p>
+          <div class="flex items-baseline gap-1 mb-6">
+            <span class="heading-font text-4xl font-black text-white">$99.99</span>
+            <span class="text-slate-400 text-xs">one-time</span>
+          </div>
+          <ul class="space-y-3 text-xs text-slate-300">
+            <li class="flex items-center gap-2">✓ Permanent VIP status — never pay again</li>
+            <li class="flex items-center gap-2">✓ All future AI model updates included</li>
+            <li class="flex items-center gap-2">✓ Historical archive downloads</li>
+            <li class="flex items-center gap-2">✓ Direct developer feedback channel</li>
+          </ul>
+        </div>
+        <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank"
+           class="mt-8 block w-full py-3 rounded-full text-xs font-bold text-center uppercase tracking-wider text-white border border-white/15 hover:bg-white/5 transition-colors">
+          Get Lifetime VIP
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQs Section -->
+  <section id="faqs" class="relative z-10 py-20 px-6 max-w-4xl mx-auto">
+    <div class="text-center mb-14">
+      <h2 class="heading-font text-3xl sm:text-4xl font-black text-white">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-slate-400 text-sm mt-2">Everything you need to know about our algorithm and subscriptions</p>
+    </div>
+
+    <div class="space-y-3">
+      <!-- FAQ 1 -->
+      <div class="glass-card rounded-2xl overflow-hidden border border-white/5">
+        <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between gap-4 font-bold text-sm text-white">
+          <span>How does the Bet Of The Day AI prediction algorithm work?</span>
+          <span class="text-emerald-400 text-lg transition-transform faq-arrow">+</span>
+        </button>
+        <div class="hidden px-5 pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/5 pt-3">
+          BTD utilizes an ensemble of machine learning models trained on millions of historical football events. It factors in expected goals (xG), team form, injury reports, tactical formations, home advantage, and bookmaker odds drift to estimate the true mathematical probability of match outcomes.
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="glass-card rounded-2xl overflow-hidden border border-white/5">
+        <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between gap-4 font-bold text-sm text-white">
+          <span>Can I use Bet Of The Day for free?</span>
+          <span class="text-emerald-400 text-lg transition-transform faq-arrow">+</span>
+        </button>
+        <div class="hidden px-5 pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/5 pt-3">
+          Yes! BTD offers free access to daily match fixtures, live match scores, and a rolling daily free unlock slot that refreshes as matches are played. PRO subscriptions unlock unlimited simultaneous access and an ad-free experience.
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="glass-card rounded-2xl overflow-hidden border border-white/5">
+        <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between gap-4 font-bold text-sm text-white">
+          <span>Which football leagues are supported?</span>
+          <span class="text-emerald-400 text-lg transition-transform faq-arrow">+</span>
+        </button>
+        <div class="hidden px-5 pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/5 pt-3">
+          BTD covers all major world leagues including the English Premier League, UEFA Champions League, Spanish La Liga, Italian Serie A, German Bundesliga, French Ligue 1, MLS, plus domestic cups and over 45 other international competitions.
+        </div>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="glass-card rounded-2xl overflow-hidden border border-white/5">
+        <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between gap-4 font-bold text-sm text-white">
+          <span>How do I cancel or manage my PRO subscription?</span>
+          <span class="text-emerald-400 text-lg transition-transform faq-arrow">+</span>
+        </button>
+        <div class="hidden px-5 pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/5 pt-3">
+          Subscriptions are managed securely via Google Play In-App Billing (powered by RevenueCat). You can cancel anytime from Google Play Store > Subscriptions with one tap.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download CTA Section -->
+  <section class="relative z-10 py-20 px-6 max-w-5xl mx-auto text-center">
+    <div class="p-10 sm:p-14 rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/40 to-slate-950 backdrop-blur-2xl">
+      <h2 class="heading-font text-3xl sm:text-5xl font-black text-white mb-4">
+        Ready to Unlock Your Sports Edge?
+      </h2>
+      <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto mb-8">
+        Join thousands of smart sports fans making data-backed decisions every matchday with Bet Of The Day.
+      </p>
+      <div class="flex justify-center">
+        <a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-bold text-sm transition-all hover:scale-105 active:scale-95 bg-slate-900 border border-white/20 shadow-2xl">
+          <svg class="w-6 h-6 fill-current text-emerald-400" viewBox="0 0 24 24">
+            <path d="M3.609 1.814L13.793 12 3.61 22.186a2.41 2.41 0 0 1-.61-.92L3 21.03V2.97c0-.447.123-.88.35-1.256l.26.1zM15.207 13.414l2.793 2.793-11.45 6.61 8.657-9.403zm0-2.828L6.55 1.183l11.45 6.61-2.793 2.793zm1.414 1.414l3.77-2.176a1.5 1.5 0 0 1 0 2.6l-3.77 2.176v-2.6z" />
+          </svg>
+          <div class="flex flex-col text-left">
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 leading-none">INSTALL FREE FROM</span>
+            <span class="font-bold text-base leading-none mt-1">Google Play Store</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-white/5 bg-black/40 py-16 px-6">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-xl">⚽</span>
+          <span class="heading-font font-black text-lg text-white">Bet Of The Day</span>
+        </div>
+        <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
+          Algorithmic football predictions, Poisson simulations, and Expected Goals (xG) metrics. Developed by Codeink Technologies.
+        </p>
+        <p class="text-[11px] text-slate-500 mt-4">
+          Disclaimer: Bet Of The Day is an informational and sports statistical advisory tool. We are not a sportsbook and do not accept wagers. Play responsibly.
+        </p>
+      </div>
+
+      <div>
+        <div class="font-bold text-white text-xs uppercase tracking-wider mb-4">Product</div>
+        <ul class="space-y-2 text-xs text-slate-400">
+          <li><a href="#features" class="hover:text-emerald-400">Features</a></li>
+          <li><a href="#pricing" class="hover:text-emerald-400">VIP Plans</a></li>
+          <li><a href="https://play.google.com/store/apps/details?id=com.stsl.codeink.btd" target="_blank" class="hover:text-emerald-400">Android App</a></li>
+          <li><a href="#faqs" class="hover:text-emerald-400">Support &amp; FAQs</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="font-bold text-white text-xs uppercase tracking-wider mb-4">Legal &amp; Policy</div>
+        <ul class="space-y-2 text-xs text-slate-400">
+          <li><button onclick="openLegalModal('privacy')" class="hover:text-emerald-400 text-left">Privacy Policy</button></li>
+          <li><button onclick="openLegalModal('tos')" class="hover:text-emerald-400 text-left">Terms of Service</button></li>
+          <li><button onclick="openLegalModal('eula')" class="hover:text-emerald-400 text-left">EULA</button></li>
+          <li><button onclick="openLegalModal('cookies')" class="hover:text-emerald-400 text-left">Cookie Policy</button></li>
+          <li><button onclick="openLegalModal('refund')" class="hover:text-emerald-400 text-left">Refund Policy</button></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+      <div>© 2026 Codeink Technologies. All rights reserved.</div>
+      <div>Support: support@codeinktechnologies.com</div>
+    </div>
+  </footer>
+
+  <!-- Interactive Legal Modal -->
+  <div id="legal-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0D111A] border border-white/10 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-6 border-b border-white/10 flex items-center justify-between">
+        <h3 id="modal-title" class="text-xl font-bold text-white">Legal Terms</h3>
+        <button onclick="closeLegalModal()" class="text-slate-400 hover:text-white p-2 text-lg">✕</button>
+      </div>
+      <!-- Modal Content Body -->
+      <div id="modal-body" class="p-6 overflow-y-auto text-slate-300 text-xs sm:text-sm space-y-4 leading-relaxed">
+        <!-- Injected via JS -->
+      </div>
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-white/10 flex justify-end bg-black/30">
+        <button onclick="closeLegalModal()" class="px-5 py-2 rounded-full text-xs font-bold bg-emerald-600 text-white">
+          Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function toggleFaq(btn) {
+      const body = btn.nextElementSibling;
+      const arrow = btn.querySelector('.faq-arrow');
+      const isHidden = body.classList.contains('hidden');
+      body.classList.toggle('hidden');
+      arrow.textContent = isHidden ? '−' : '+';
+      arrow.classList.toggle('text-emerald-400');
+    }
+
+    const LEGAL_TEXTS = {
+      privacy: {
+        title: 'Privacy Policy — Bet Of The Day',
+        html: `
+          <p><strong>Effective Date:</strong> September 2026 | <strong>Publisher:</strong> Codeink Technologies</p>
+          <p>Bet Of The Day operates under a strict principle of user data minimization. We do not require account sign-ups, passwords, or personal identity documents.</p>
+          <h4 class="font-bold text-white mt-4 text-sm">1. Data Collected Automatically</h4>
+          <ul class="list-disc pl-5 space-y-1 text-slate-400">
+            <li>Device diagnostics (OS version, hardware model, language settings).</li>
+            <li>Ad identifiers (Google Advertising ID) processed via Google Mobile Ads SDK.</li>
+            <li>Anonymous purchase tokens processed securely via RevenueCat.</li>
+          </ul>
+          <h4 class="font-bold text-white mt-4 text-sm">2. Third-Party Integrations</h4>
+          <p>We work with Google AdMob, Firebase, and RevenueCat to deliver reliable, ad-supported and VIP experiences in full compliance with Google Play Store Developer Guidelines.</p>
+          <h4 class="font-bold text-white mt-4 text-sm">3. Inquiries & Rights</h4>
+          <p>For data rights or GDPR inquiries, contact: support@codeinktechnologies.com</p>
+        `
+      },
+      tos: {
+        title: 'Terms of Service — Bet Of The Day',
+        html: `
+          <p><strong>Publisher:</strong> Codeink Technologies</p>
+          <p class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-200 rounded-xl">
+            <strong>NOTICE:</strong> Bet Of The Day is an informational and entertainment sports data application. It is NOT a gambling or wagering operator.
+          </p>
+          <h4 class="font-bold text-white mt-4 text-sm">1. VIP Subscriptions</h4>
+          <p>Subscriptions (Monthly and Yearly) are managed through Google Play Store billing. Auto-renewals occur 24 hours prior to expiration unless canceled in Google Play.</p>
+          <h4 class="font-bold text-white mt-4 text-sm">2. Disclaimer of Warranties</h4>
+          <p>Sports events feature inherent variance. Predictions are provided "as-is" without guarantee of financial profit. Bet responsibly.</p>
+        `
+      },
+      eula: {
+        title: 'End User License Agreement (EULA)',
+        html: `
+          <p>Codeink Technologies grants you a personal, revocable, non-exclusive license to use Bet Of The Day on personal Android devices.</p>
+          <h4 class="font-bold text-white mt-4 text-sm">Restrictions</h4>
+          <p>You may not reverse-engineer, decompile, scrape, or republish the algorithms, prediction feeds, or proprietary UI components.</p>
+        `
+      },
+      cookies: {
+        title: 'Cookie & Local Storage Policy',
+        html: `
+          <p>Bet Of The Day uses on-device local storage (SharedPreferences and FlutterSecureStorage) to cache match preferences, active theme settings, and unlocked fixture tokens.</p>
+          <p>Local data can be cleared at any time via Android Settings > Apps > Bet Of The Day > Clear Cache.</p>
+        `
+      },
+      refund: {
+        title: 'Refund Policy',
+        html: `
+          <p>All in-app purchases are fulfilled through Google Play In-App Billing.</p>
+          <h4 class="font-bold text-white mt-4 text-sm">48-Hour Google Play Window</h4>
+          <p>You can request an automated refund within 48 hours of purchase directly through Google Play Order History.</p>
+          <p>For technical support or assistance restoring purchases, email: support@codeinktechnologies.com</p>
+        `
+      }
+    };
+
+    function openLegalModal(tab) {
+      const data = LEGAL_TEXTS[tab] || LEGAL_TEXTS.privacy;
+      document.getElementById('modal-title').innerText = data.title;
+      document.getElementById('modal-body').innerHTML = data.html;
+      document.getElementById('legal-modal').classList.remove('hidden');
+    }
+
+    function closeLegalModal() {
+      document.getElementById('legal-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

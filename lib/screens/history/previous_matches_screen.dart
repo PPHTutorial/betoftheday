@@ -116,6 +116,11 @@ class _PreviousMatchesScreenState extends State<PreviousMatchesScreen> {
                         selectedColor:
                             theme.colorScheme.primary.withValues(alpha: 0.2),
                         checkmarkColor: theme.colorScheme.primary,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide.none,
+                        ),
                       ),
                     );
                   },

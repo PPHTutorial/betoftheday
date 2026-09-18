@@ -342,7 +342,9 @@ class AppTheme {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20 * scaleFactor),
+          side: BorderSide.none,
         ),
+        side: BorderSide.none,
       ),
 
       // Bottom Navigation Bar
@@ -687,7 +689,9 @@ class AppTheme {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20 * scaleFactor),
+          side: BorderSide.none,
         ),
+        side: BorderSide.none,
       ),
 
       // Bottom Navigation Bar

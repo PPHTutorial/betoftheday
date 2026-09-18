@@ -5,6 +5,7 @@ import 'storage_service.dart';
 import 'prediction_engine.dart';
 import '../models/league_model.dart';
 import '../models/prediction_model.dart';
+import 'notification_service.dart';
 
 /// Service to handle background data synchronization from the scraper site.
 class BackgroundSyncService {
@@ -149,6 +150,15 @@ void callbackDispatcher() {
 
         // All matches go to current cache (for today/upcoming/recent views)
         await storage.cacheMatches(allCollectedMatches);
+
+        // Check and send notifications for bookmarked fixtures & favorite teams
+        try {
+          final notifService = NotificationService();
+          await notifService.init();
+          await notifService.checkAndNotifyMatches(allCollectedMatches);
+        } catch (e) {
+          debugPrint("Error dispatching background match notifications: $e");
+        }
       }
 
       debugPrint("Background sync completed successfully.");

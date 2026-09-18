@@ -151,9 +151,6 @@ class _HighlightsScreenState extends State<HighlightsScreen> {
           color:
               theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(Responsive.radius(16)),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.1),
-          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
