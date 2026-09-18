@@ -3,7 +3,7 @@ description: AI-powered football predictions and betting tips.
 
 publish_to: 'none'
 
-version: 26.096.01+12
+version: 26.098.08+13
 
 environment:
   sdk: ">=3.5.0 <4.0.0"

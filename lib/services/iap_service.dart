@@ -209,6 +209,12 @@ class IAPService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> clearDevPro() async {
+    _isSubscribed = false;
+    await StorageService().setIsPremium(false);
+    notifyListeners();
+  }
+
   Future<void> grantPromoProAccess() async {
     _isSubscribed = true;
     await StorageService().setIsPremium(true);

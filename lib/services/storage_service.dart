@@ -53,6 +53,8 @@ class StorageService {
 
   // ========== PREMIUM STATUS ==========
 
+  Future<void> resetPremium() async => setIsPremium(false);
+
   Future<void> setIsPremium(bool isPremium) async {
     _cachedIsPremium = isPremium;
     try {
